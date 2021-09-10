@@ -1,1 +1,1 @@
-# Math 421 Statistical Analysis with R
+# Math 421. Statistical Analysis with R
