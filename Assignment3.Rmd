@@ -1,0 +1,169 @@
+
+---
+output: # rmarkdown::github_document
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 3.  Working with Data Frame. Base R Style"
+---
+
+***Note*:** *This assignment practices working with Data Frame using Base R.*
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](fa2021_assignment3.Rmd)) in Rstudio. 
+
+- Right under each question, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas under Assignment 3. 
+
+-------
+
+Problems
+-------
+ \
+
+1. Create the following data frame
+
+| Rank 	| Age 	| Name  	|
+|------	|-----	|-------	|
+| 0    	| 28  	| Tom   	|
+| 1    	| 34  	| Jack  	|
+| 2    	| 29  	| Steve 	|
+| 3    	| 42  	| Ricky 	|
+
+```{r}
+df <- data.frame(Rank=c(0,1,2,3), Age=c(28,34,29,42), Name=c('Tom','Jack','Steve','Ricky'))
+df
+```
+
+2. Use `read.csv` to import the Covid19 Vaccination data from WHO: [link](https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv)
+
+Show the names of the variables in the data
+
+```{r}
+df3 <- read.csv('https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv')
+names(df3)
+```
+
+3. How many columns and rows the data have? 
+
+```{r}
+length(df3$state) #for numbers of rows
+length(df3) #for number of columns
+dim(df3) # both in one function
+```
+
+4. How many missing values are there?  Show the missing values by columns.  What variable has the most number of missing values?
+
+```{r}
+sum(is.na(df3))
+#there are no missing values
+colSums(is.na(df3))
+```
+
+5. What is the class of the `date` column. Change the `date` columns to `date` type using the `as.Date` function. Show the new class of the `date` column. 
+
+```{r}
+class(df3$date)
+df3$date <- as.Date(df3$date)
+class(df3$date)
+```
+
+6. Capitalize the names of all the variables
+
+```{r}
+names(df3)[1] <- 'Date'
+names(df3)[2] <- 'State'
+names(df3)[3] <- 'Fips'
+names(df3)[4] <- 'Cases'
+names(df3)[5] <- 'Deaths'
+```
+
+7. Find the average number of cases per day. Find the maximum cases a day.  
+
+```{r}
+mean(df3$Cases)
+max(df3$Cases)
+```
+
+8. How many states are there in the data?  
+```{r}
+length(unique(df3$State))
+```
+
+
+9. Create a new variable `weekdays` to store the weekday for each rows. 
+
+```{r}
+df3$weekdays <- weekdays(df3$Date)
+str(df3)
+```
+
+
+10. Create the categorical variable `death2` variable taking the values as follows
+
+- `has_death` if there is a death that day
+-  `no_death` if there is no death that day
+
+Find the frequency and relative frequency of `no_death` and `has_death`. 
+
+```{r}
+df3$death2 <- ifelse(df3$Deaths==0, 'no_death','has_death')
+table(df3$death2)
+mean(df3$death2=='has_death')
+#96.93% of days have a death
+```
+
+11. Find the first quartile (Q1), second quartile (Q2) and and third quartile (Q3) of the variable `death`. (Hint:  Use the `summary` function)
+
+```{r}
+summary(df3$Deaths)
+#Q1 = 364, Q2 = 2082, Q3 = 7380 as of 9/21
+```
+
+
+12. Create the categorical variable `death3` variable taking the values as follows
+
+- `low_death` if the number of deaths smaller than the 25 percentile (Q1)
+
+- `mid_death` if the number of deaths from Q1 to Q3
+
+- `high_death` if the number of deaths greater than Q3
+
+```{r}
+df3$death3 <- cut(df3$Deaths, 
+                      breaks = c(-Inf, 364, 7380,Inf), 
+                      labels=c('low_death','mid_death','high_death'))
+table(df3$death3)
+```
+
+
+13. Find the average cases in Rhode Island in 2021
+
+```{r}
+dfRI <- df3[df3$Date>='2021-01-01'&df3$State=='Rhode Island',]
+#don't need to cap date yet because no 2022 data
+by(dfRI$Cases, dfRI$State, mean)
+```
+
+
+14. Find the median cases by weekdays in Rhode Island in 2021 
+
+```{r}
+#dfRI already has data only in Rhode Island in 2021
+by(dfRI$Cases,dfRI$weekdays, median)
+```
+
+
+15. Compare the median cases in Rhode Island in June, July, August and September in 2021. 
+
+```{r}
+dfRI$months <- months(dfRI$Date)
+dfRI <- dfRI[dfRI$Date>='2021-06-01'&dfRI$Date<'2021-10-01',]
+by(dfRI$Cases,dfRI$months, median)
+```
