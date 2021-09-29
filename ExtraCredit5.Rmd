@@ -30,7 +30,7 @@ knitr::opts_chunk$set(message = FALSE)
 ```{r}
 library(tidyverse)
 library(readxl)
-install.packages('Rcpp')
+#install.packages('Rcpp')
 library(Rcpp)
 df55 <- read_excel("c2015.xlsx")
 ```
