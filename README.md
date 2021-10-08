@@ -14,6 +14,6 @@
 
 [Assignment 6](Assignment6.html)
 
-[Assignment 7]()
+[Assignment 7](Assignment7.html)
 
 [Plot from Assignment 7](Plot7.png)
