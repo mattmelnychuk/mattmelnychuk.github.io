@@ -13,3 +13,7 @@
 [Extra Credit](ExtraCredit5.html)
 
 [Assignment 6](Assignment6.html)
+
+[Assignment 7]()
+
+[Plot from Assignment 7](Plot7.png)

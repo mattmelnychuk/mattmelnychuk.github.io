@@ -1,0 +1,232 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 7: Visualization - Some aspects of ggplot2"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](fa2021_assignment7.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+-------
+
+### I. Questions on Your Selected Data
+
+Use the data of your own.  Produce the following types of plots and comment on each plot. Plots should be meaningful. If you use the data we used in class, make sure the plots are not the same as the ones in the slides. All plots should have title, caption, appropriate labels on x and y-axis. 
+
+-------
+```{r}
+library(tidyverse)
+library(ggplot2)
+df7 <-read_csv("C:/Users/student/Desktop/Data Mining 460/ncaaVB.csv")
+```
+
+
+1. Make a plot using `face_wrap` by one categorical variable (`face_wrap(~variable1)`)
+```{r}
+df7 %>% filter(Region=='East'|Region=='South') %>% ggplot()+ geom_point(mapping=aes(x=OppKills, y=WinPercent)) + geom_smooth(mapping=aes(x=OppKills, y=WinPercent)) + facet_wrap(~Region)
+#In both the East and South regions, Winning percentage seems to be negatively correlated with opponent kills.  This makes sense becuase teams that give up more kills will be more likley to lose games, and geography should have no bearing on this.
+```
+
+
+2. Make a plot using `face_wrap` by two categorical variables (`face_wrap(variable1~variable2)`)
+```{r}
+df7 %>% filter(Region=='East'|Region=='South') %>%  ggplot()+ geom_point(mapping=aes(x=Aces, y=WinPercent)) + geom_smooth(mapping=aes(x=Aces, y=WinPercent)) + facet_wrap(Region~Tourney2018)
+#In general, there appears to be a bit more variation among teams that were in the tournament last year (1) than those who did not make playoffs (0).  For non-playoff teams, aces seem to improve winning percentage, while the curved fits for playoff teams have dips up and down, and it does not appear aces have a large impact on win percentage there.
+```
+
+3. Make a plot using `position ='jitter'`. 
+```{r}
+df7 %>% ggplot()+ geom_point(mapping=aes(x=CoachTenure, y=WinPercent, color=Tourney2018))
+df7 %>% ggplot()+ geom_point(mapping=aes(x=CoachTenure, y=WinPercent, color=Tourney2018), position='jitter')
+#Jitter function helps so that all points can be seen.  It appears that coaches who have been around for a while tend to have teams that perform slightly better.  Also, the lightblue dots represent teams who made the playoffs in previous years - those teams tend to do better than average in the following season.
+```
+
+
+4. Make a plot using `position ='dodge'`.
+```{r}
+df7$Tourney2018 <- as.factor(df7$Tourney2018 )
+#to make it binary category instead of continuous
+df7 %>% ggplot()+geom_bar(mapping=aes(x=Tourney2018, fill=CoachLength), 
+           position = 'dodge')
+#This plot shows us the number of coaches who either made or didn't make the playoffs in 2018 by coaching length.  Even though there are lots more coaches in the "SomeYears" category, there are an equal amount of "SomeYears" coaches and "LongTime" and "Experienced" coaches who made the playoffs.
+```
+
+
+5. Make a plot using `position ='fill'`. 
+```{r}
+df7 %>% ggplot()+geom_bar(mapping=aes(x=CoachLength, fill=Tourney2018), 
+           position = 'fill')
+#This graph shows that a greater portion of 3 decade+ coaches made the playoffs in 2018 than any other category.  About 1/3 of 30yr+ coaches makes playoffs, compared to about 1/5 of new coaches.  This makes sense because coaches must be successful to continue to be hired for such a long tenure.
+```
+
+
+6. Make a plot using `geom_col`.
+```{r}
+df7 %>% filter(Region=='East') %>% group_by(Conference) %>% summarise(average_Matches=mean(Matches)) %>% 
+  ggplot()+ 
+  geom_col(mapping=aes(x=Conference, y=average_Matches))
+#This column chart shows that Ivy League schools only play around 23 matches on average (and America East schools play around 25), while schools in other conferences average closer to 30 matches.
+```
+
+
+7. Change the theme of one of your plots.
+```{r}
+df7$Tourney2018 <- as.factor(df7$Tourney2018 )
+#to make it binary category instead of continuous
+df7 %>% ggplot()+geom_bar(mapping=aes(x=Tourney2018, fill=CoachLength), 
+           position = 'dodge') + theme_dark()
+#Same plot as question 4, but in dark theme
+```
+
+
+8. Save a plot and put a link of the plot to your Github Webpage.  To link a plot `abc.png` you just need to insert the following on the README.md
+
+```{r, eval=FALSE}
+[Link to the plot](abc.png)
+```
+
+
+### II. Questions on Covid Vaccination Data
+
+In this section of questions, we will use  the covid vaccination data for the US. The data and data dictionary can be found at the below link:
+
+- [Data](https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/us_data/time_series/vaccine_data_us_timeline.csv)
+
+- [Data Dictionary](https://github.com/govex/COVID-19/blob/master/data_tables/vaccine_data/us_data/data_dictionary.csv)
+
+
+```{r}
+library(tidyverse)
+df <- read_csv('https://raw.githubusercontent.com/govex/COVID-19/master/data_tables/vaccine_data/us_data/time_series/vaccine_data_us_timeline.csv')
+```
+
+1. Put titles, captions, appropriate labels on x and y-axis for the last two questions in Assignments 6.
+```{r}
+df %>% filter(Province_State=='California') %>% filter(Vaccine_Type==c('Moderna','Pfizer')) %>% ggplot()+geom_point(mapping = aes(x = Date, y = Doses_admin, color = Vaccine_Type)) + labs(x='Date', 
+       y = 'Cumulative Doses Administered', 
+       color='Vaccine Company', 
+       title = 'Scatter Plot of Pfizer vs Modern Vaccines in California', 
+       caption = 'Many more Pfizer administered to date.')
+```
+
+```{r}
+library(lubridate)
+df  %>% filter(Vaccine_Type ==c('All')) %>% filter(Province_State==c('Rhode Island','Maine','Connecticut','New Hampshire','Massachusetts','Vermont')) %>%  group_by(Date, Vaccine_Type, Province_State) %>% summarise(DOSES = mean(Doses_admin)) %>% ggplot()+geom_line(mapping = aes(x = month(Date), y = DOSES, color = Province_State)) + labs(x='Month', 
+       y = 'Cumulative Doses Administered', 
+       color='Vaccine Company', 
+       title = 'New England Vaccines', 
+       caption = 'Massachusetts has the most vaccines.')
+#Used one graph from Question 1 on assignment 6 and one graph from Question 2
+```
+
+
+2. Since the data seems lack of categorical variables, we will create a few categorical variables for easier visualization. From the `Date` variable create three categorical variables to record weekdays, months and quarters. You could also create a categorical variable to record the state regions (South, North East, Midwest, West) or other new categorical variables.
+```{r}
+df$month = month(df$Date)
+df$quarter = quarter(df$Date)
+df$weekday = wday(df$Date)
+df$weekend <- case_when(
+  df$weekday ==1 ~ 1,
+  df$weekday ==7 ~ 1,
+  TRUE ~ 0)
+df$NewEng <- case_when(
+  df$Province_State =='Maine' ~ 1,
+  df$Province_State =='Massachusetts' ~ 1,
+  df$Province_State =='Connecticut' ~ 1,
+  df$Province_State =='Rhode Island' ~ 1,
+  df$Province_State =='New Hampshire' ~ 1,
+  df$Province_State =='Vermont' ~ 1,
+  TRUE ~ 0)
+```
+
+
+3. With the updated data after question 2.  Create at least 7 new meaningful graphs.  Your graphs should have titles, captions, appropriate labels on x and y-axis. You should also make use of the follows. 
+
+ - geom_point
+```{r}
+library(tidyverse)
+library(ggplot2)
+df %>% filter(NewEng==1) %>% filter(Vaccine_Type == 'Pfizer') %>% group_by(Date, Vaccine_Type) %>% ggplot()+geom_point(mapping = aes(x = Date, y = Stage_Two_Doses, color=Province_State)) + labs(x='Date', 
+       y = 'Cumulative Doses Administered', 
+       color='State', 
+       title = 'New England Pfizer Vaccine Stage Two', 
+       caption = 'Vermont administered the fewest Pfizer vaccines.')
+```
+ 
+ - geom_line
+```{r}
+df %>% filter(Province_State =='Texas') %>% group_by(Date, Vaccine_Type) %>% ggplot()+geom_line(mapping = aes(x = Date, y = Stage_One_Doses, color=Vaccine_Type)) + labs(x='Date', 
+       y = 'Cumulative First Doses Administered', 
+       color='Vaccine Brand', 
+       title = 'First Vaccines in Texas', 
+       caption = 'Most of the data from Texas shows vaccine brand as unassigned.')
+```
+ 
+ - geom_smooth
+```{r}
+df %>% filter(Province_State==c('California','Florida','New York','Texas','Massachusetts')) %>% group_by(month) %>% ggplot()+geom_smooth(mapping = aes(x = month, y = Doses_admin, color=Province_State)) + labs(x='Date', 
+       y = 'Cumulative Doses Administered', 
+       color='State', 
+       title = 'Large State Vaccines Administered', 
+       caption = 'FL & NY approx same # of vaccines; FL has 3 times larger population.')
+```
+ 
+ _ geom_bar
+```{r}
+df %>% filter(Vaccine_Type=='Moderna') %>% ggplot()+
+  geom_bar(mapping = aes(x = weekday)) + labs(x='Day of Week', 
+       y = 'Observations in Data', 
+       title = 'Pieces of Data by Day of Week', 
+       caption = 'Slightly less data from weekday=1 or 7 because those are weekend days')
+#Geom_bar is not very useful for this Covid data because it is used as a count instead of looking at a more useful y value
+```
+ 
+ - geom_col
+```{r}
+df %>% filter(NewEng==1) %>% ggplot()+
+  geom_col(mapping = aes(x = Province_State, y=Doses_admin, color=Vaccine_Type)) + labs(x='State', 
+       y = 'Doses of Pfizer Vaccine Administered',
+       color = 'State',
+       title = 'Vaccines by State in New England', 
+       caption = 'States rely mostly on Pfizer and Moderna')
+```
+ 
+ - face_wrap
+```{r}
+df %>% filter(Province_State=='Massachusetts'|Province_State=='Rhode Island'|Province_State=='New Hampshire'|Province_State=='Vermont'| Province_State=='Maine'|Province_State=='Connecticut'| Province_State=='Nebraska'|Province_State=='Iowa'|Province_State=='North Dakota'| Province_State=='South Dakota'| Province_State=='Montana'| Province_State=='Wyoming') %>% ggplot()+
+  geom_smooth(mapping = aes(x = Date, y=Doses_admin, color=Vaccine_Type)) + facet_wrap(~NewEng) + labs(x='Date', 
+       y = 'Vaccines Administered',
+       color = 'Vaccine Type',
+       title = 'Vaccines: Great American West vs New England', 
+       caption = 'Many more vaccines in New England than West, but populations may be unequal')
+#0 means data from the states above that are not in New England
+```
+ 
+ - combination of geom_point and geom_smooth 
+```{r}
+library(lubridate)
+df %>% filter(Vaccine_Type=='Pfizer') %>%  filter(NewEng==1) %>% ggplot()+ geom_point(mapping=aes(x=month, y=Doses_admin, color=Province_State)) + geom_smooth(mapping=aes(x= as.numeric(Date)/365*12-612, y=Doses_admin, color=Province_State)) + labs(x='Month', 
+       y = 'Vaccines Administered',
+       color = 'Vaccine Type',
+       title = 'Vaccines Over Time', 
+       caption = 'Many more vaccines in New England than West, but populations may be unequal')
+
+#That weird formula was used to convert the date to match up with month values on the same scale (or at least I tried my best to line them up)
+```
+ 
