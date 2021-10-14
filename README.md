@@ -17,3 +17,5 @@
 [Assignment 7](Assignment7.html)
 
 [Plot from Assignment 7](Plot7.png)
+
+[Assignment 8](Assignment8.html)
