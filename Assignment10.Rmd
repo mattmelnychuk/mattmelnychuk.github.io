@@ -154,8 +154,6 @@ forest2kpred <-cm$overall[1]
 
 forest1kpred
 forest2kpred
-#1000 forest accuracy = 78.4%
-#2000 forest accuracy = 79.1%
 
 ```
 
