@@ -172,13 +172,14 @@ forest_modelNEW = randomForest(target ~ ., data=dfNEW_train, ntree = 200)
 predNEW <- predict(forest_modelNEW, dfNEW_test, type = "class")
 cmNEW <- confusionMatrix(data = predNEW, reference = dfNEW_test$target, positive = "1")
 cmNEW$overall[1]
-#Accuracy 70.2%, lower than 81.6% earlier
+#Accuracy lower than 81.6% earlier
+```
 
-
+```{r}
 cmNEW$byClass[1]
-#Sensitivity up to 64.2% from 34.9% earlier
+#Sensitivity up from 34.9% earlier
 cmNEW$byClass[2]
 cmNEW$byClass[11]
-#Balanced Accuracy 70.2%, higher than 64.9% earlier
+#Balanced Accuracy higher than 64.9% earlier
 ```
 
