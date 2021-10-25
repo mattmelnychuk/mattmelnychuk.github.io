@@ -1,0 +1,184 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 10 - Extra Credits: Precitive Model and Imbalanced Data"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](fa2021_assignment10_extra_credits.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Canvas
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+
+-------
+
+1. In the `Adult Census Income` dataset ([Link](https://www.kaggle.com/uciml/adult-census-income)), identify and handle all the missing values. Put the categorical variables in factor form. 
+```{r}
+library(tidyverse)
+df <-read_csv("C:\\Users\\student\\Desktop\\R 421\\adult.csv")
+df <- drop_na(df)
+```
+
+
+2. Train and test a decision tree to predict whether or not a person earns more than 50k.  What is the testing accuracy of the tree? What are the three most important variables? Notice:  you may need to set the positive (1) and negative (0) of the target variable. 
+```{r}
+df$target <- case_when(
+  df$income =="<=50K" ~ 0,
+  df$income ==">50K" ~ 1,
+  TRUE ~ 0)
+table(df$target)
+#Creating target variable
+
+df <- select(df,-income)
+df <- select(df,-education)
+#removes income category otherwise will use target as a predictor
+
+df$target <- factor(df$target)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df$target, p = .70, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+
+df$target <- factor(df$target)
+library(rpart)
+tree_model <- rpart(target ~ ., data = df_train,
+                 control = rpart.control(maxdepth = 3))
+
+library(caret)
+#predict on testing data
+pred <- predict(tree_model, df_test, type = "class")
+#Evaluate the predictions
+cm <- confusionMatrix(data = pred, reference = df_test$target, positive = "1")
+treepred <-cm$overall[1]
+treepred
+#84.2% accurate
+
+library(rattle)
+fancyRpartPlot(tree_model)
+
+tree_model$variable.importance
+#3 most important are relationship, martial.status, and capital gain
+barplot(tree_model$variable.importance)
+```
+
+3. Train and test a random forest to predict whether or not a person earns more than 50k.  What is the testing accuracy of the tree? What are the three most important variables?
+```{r}
+library(randomForest)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df$target, p = .70, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+forest_model = randomForest(target ~ ., data=df_train, ntree = 200)
+
+pred <- predict(forest_model, df_test, type = "class")
+cm <- confusionMatrix(data = pred, reference = df_test$target, positive = "1")
+cm$overall[1]
+#87% accurate, slightly better than tree model
+
+importance(forest_model)
+#3 most important are capital.gain, education.num, and age
+```
+
+
+4. Download credit card default data at [this link](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset). Train and test a random forest to predict whether or not a customer has a default payment next month. What is the accuracy of the forest?
+```{r}
+library(tidyverse)
+df2 <-read_csv("C:\\Users\\student\\Desktop\\R 421\\UCI_Credit_Card.csv")
+
+names(df2)[25] <- 'target'
+#Naming target variable
+df2$target <- factor(df2$target)
+
+library(randomForest)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df2$target, p = .70, 
+                                  list = FALSE)
+df2_train <- df2[ splitIndex,]
+df2_test <- df2[-splitIndex,]
+forest_model2 = randomForest(target ~ ., data=df2_train, ntree = 200)
+
+pred2 <- predict(forest_model2, df2_test, type = "class")
+cm2 <- confusionMatrix(data = pred2, reference = df2_test$target, positive = "1")
+cm2$overall[1]
+```
+
+
+5.  Sometime, the accuracy is not enough to evaluate a model. In this example, we notice that the model predicts the `not-default payment` very well which reflects through the high specificity (True Negative Rate), but predicts the `default payment` not very well reflecting through a low sensitivity (True Positive Rate). The balanced accuracy is the average of the sensitivity and specificity.  Use `cm$byClass[11]` to check the these metrics of the model. 
+```{r}
+cm2$byClass[1]
+cm2$byClass[2]
+cm2$byClass[11]
+```
+
+
+6. The low specificity is due to the imbalanced distribution of the target variable.  Use `prop.table(table())` to check the imbalance of the target. 
+```{r}
+prop.table(table(df2$target))
+```
+
+
+7. (Challenging) We want to improve the sensitivity of the model. To do that we first need to balance the training data so that there is a 50:50 distribution between the two classes (default and not default).  Do the follows to balance the training data
+
+   - Split the original training data into 2 subsets.  Subset 1 contains default customers.  Subset 2 contains the remainders. Let n1, and n2 be the numbers of the rows in Subset 1 and 2 respectively. 
+```{r}
+library('tidyverse')
+dfDEFAULT <- filter(df2, target == "1")
+dfGOOD <- filter(df2, target =="0")
+length(dfDEFAULT$target)
+#6636 defaults
+length(dfGOOD$target)
+#23364 customers who don't default
+```
+   
+   
+   - Create a new training data contains Subset 1 and randomly n1 observations in Subset 2. You can use the `sample` functions to randomly select n1 observations in Subset 2. You can use the `rbind` function to merge two dataset by row.
+```{r}
+dfGOODpart <- sample_n(dfGOOD,6636)
+dfNEW <-rbind(dfDEFAULT,dfGOODpart)
+prop.table(table(dfNEW$target))
+```
+   
+   
+   - Train a random forest on the new training data.  Calculate the specificity and balanced accuracy of the new model on the (same) testing data. 
+```{r}
+library(randomForest)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(dfNEW$target, p = .70, 
+                                  list = FALSE)
+dfNEW_train <- dfNEW[ splitIndex,]
+dfNEW_test <- dfNEW[-splitIndex,]
+forest_modelNEW = randomForest(target ~ ., data=dfNEW_train, ntree = 200)
+
+predNEW <- predict(forest_modelNEW, dfNEW_test, type = "class")
+cmNEW <- confusionMatrix(data = predNEW, reference = dfNEW_test$target, positive = "1")
+cmNEW$overall[1]
+#Accuracy 70.2%, lower than 81.6% earlier
+
+
+cmNEW$byClass[1]
+#Sensitivity up to 64.2% from 34.9% earlier
+cmNEW$byClass[2]
+cmNEW$byClass[11]
+#Balanced Accuracy 70.2%, higher than 64.9% earlier
+```
+
