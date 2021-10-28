@@ -1,0 +1,228 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 12: Predictive Modeling - Part 3"
+---
+
+***How to do it?***: 
+
+- Open the Rmarkdown file of this assignment ([link](fa2021_assignment12.Rmd)) in Rstudio. 
+
+- Right under each **question**, insert  a code chunk (you can use the hotkey `Ctrl + Alt + I` to add a code chunk) and code the solution for the question. 
+
+- `Knit` the rmarkdown file (hotkey: `Ctrl + Alt + K`) to export an html.  
+
+-  Publish the html file to your Githiub Page. 
+
+***Submission***: Submit the link on Github of the assignment to Blackboard.
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = FALSE)
+```
+
+
+-------
+
+1. Install the package `mlbench` and use the follows to import the data
+
+```{r}
+library(mlbench)
+data(PimaIndiansDiabetes)
+df <- PimaIndiansDiabetes
+```
+
+- Set seed to be 2020. 
+- The target variable is `diabetes`
+- Partition the data into 80% training and 20% testing.  
+
+```{r}
+# The target variable is the variable at column 9. 
+# Same as previous two assignments
+names(df)[9] <- 'target'
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df$target, p = .80, 
+                                  list = FALSE)
+df_train <- df[ splitIndex,]
+df_test <- df[-splitIndex,]
+```
+
+-------
+
+2. Use cross-validation of 30 folds to tune random forest (method='rf').  What is the `mtry` value that produces the greatest accuracy?
+
+```{r}
+# Decide the range of the maxdepth to search for the best
+#9 variables in dataset and 1 is target, so only try up to 8 (using 5 to run it faster)
+tuneGrid = expand.grid(mtry = 2:5)
+# Tell caret to do 30 folds cross-Validation
+trControl = trainControl(method = "cv",
+                         number = 30)
+# train a forest using above setup
+set.seed(2020)
+forest_rf <- train(target~., data=df_train, 
+                                method = "rf", 
+                                trControl = trControl,
+                                tuneGrid = tuneGrid)
+
+plot(forest_rf)
+#mtry of 3 produces the best accuracy
+
+pred <- predict(forest_rf, df_test)
+cm <- confusionMatrix(data = pred, reference = df_test$target, positive = "pos")
+cm$overall[1]
+```
+
+ 
+-------
+
+3. Use cross-validation with 30 folds to tune random forest (method='ranger').  What are the parameters that produce the greatest accuracy?
+
+```{r}
+#set 30 folds for cv - actually went with 20 becuase 30 was too many errors
+trControl = trainControl(method = "cv",
+                         number = 20)
+#mtry can go 2:8 (2:5 to run it faster), test gini or extratrees, try many min node size (could do more, just long time to run)
+tuneGrid = expand.grid(mtry = 2:5,
+                       splitrule = c('gini', 'extratrees'),
+                       min.node.size = c(1:10))
+set.seed(2020)
+forest_ranger <- train(target~., data=df_train, 
+                    method = "ranger", 
+                    trControl = trControl,
+                    tuneGrid = tuneGrid)
+plot(forest_ranger)
+#Greatest accuracy at extratrees, 2 predictors, 7 minimum node size
+
+pred <- predict(forest_ranger, df_test)
+cm <- confusionMatrix(data = pred, reference = df_test$target, positive = "pos")
+cm$overall[1]
+```
+
+-------
+
+4. Go to https://topepo.github.io/caret/available-models.html and pick a classification model.  Tune the classification model using cross-validation of 30 folds. 
+```{r}
+trControl = trainControl(method = "cv",
+                         number = 30)
+
+ownn <- train(target~., data=df_train, 
+                                method = "ownn", 
+                                trControl = trControl)
+
+pred <- predict(ownn, df_test)
+cm <- confusionMatrix(data = pred, reference = df_test$target, positive = "pos")
+cm$overall[1]
+```
+
+
+-------
+
+5. Pick three models at [this link](https://topepo.github.io/caret/available-models.html) to compare using 15-fold cross validation method. Evaluate the accuracy of the final model on the test data. What is the best model?
+
+```{r}
+trControl = trainControl(method = "cv",
+                         number = 15)
+model1 <- train(target~., data=df_train, 
+                                method = "rocc", 
+                                trControl = trControl)
+model2 <- train(target~., data=df_train, 
+                    method = "ownn", 
+                                trControl = trControl)
+model3 <- train(target~., data=df_train, 
+                                method = "pam", 
+                                trControl = trControl)
+results <- resamples(list('ROC-Based Classifier' = model1,
+                          'Opimal Weighted Nearest Neighbor' = model2,
+                          'Nearest Shrunken Centroids'= model3))
+bwplot(results)
+#All models fairly similar accuracy, ROC-based is slightly better
+```
+
+-------
+
+6. Redo Question 5 on this following dataset. 
+
+ - `Adult Census Income` dataset ([Link](https://www.kaggle.com/uciml/adult-census-income)) where the target variable is `income`
+ 
+```{r}
+library(tidyverse)
+df3 <-read_csv("C:\\Users\\student\\Desktop\\R 421\\adult.csv")
+df3 <- drop_na(df3)
+df3$target <- case_when(
+  df3$income =="<=50K" ~ 0,
+  df3$income ==">50K" ~ 1,
+  TRUE ~ 0)
+df3 <- select(df3,-income)
+
+df3$target <- factor(df3$target)
+#next line makes data set smaller to run quicker
+df3 <- sample_n(df3,2000)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df3$target, p = .80, 
+                                  list = FALSE)
+df3_train <- df3[ splitIndex,]
+df3_test <- df3[-splitIndex,]
+
+#using less folds to make models run quicker
+trControl = trainControl(method = "cv",
+                         number = 5)
+model1 <- train(target~., data=df3_train, 
+                                method = "rocc", 
+                                trControl = trControl)
+model2 <- train(target~., data=df3_train, 
+                    method = "ownn", 
+                                trControl = trControl)
+model3 <- train(target~., data=df3_train, 
+                                method = "pam", 
+                                trControl = trControl)
+results <- resamples(list('ROC-Based Classifier' = model1,
+                          'Opimal Weighted Nearest Neighbor' = model2,
+                          'Nearest Shrunken Centroids'= model3))
+bwplot(results)
+#All models fairly similar accuracy again, nearest shrunked centroids is slightly better
+```
+ 
+ 
+ -  `Credit card default` dataset ([link](https://www.kaggle.com/uciml/default-of-credit-card-clients-dataset)) where the target variable is `default.payment.next.month`
+ 
+```{r}
+library(tidyverse)
+df2 <-read_csv("C:\\Users\\student\\Desktop\\R 421\\UCI_Credit_Card.csv")
+
+names(df2)[25] <- 'target'
+#Naming target variable
+df2$target <- factor(df2$target)
+#making a smaller sample to help code run quicker
+df2 <- sample_n(df2,2000)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df2$target, p = .80, 
+                                  list = FALSE)
+df2_train <- df2[ splitIndex,]
+df2_test <- df2[-splitIndex,]
+
+#only five folds to help code speed
+trControl = trainControl(method = "cv",
+                         number = 5)
+model1 <- train(target~., data=df2_train, 
+                                method = "rocc", 
+                                trControl = trControl)
+model2 <- train(target~., data=df2_train, 
+                    method = "ownn", 
+                                trControl = trControl)
+model3 <- train(target~., data=df2_train, 
+                                method = "pam", 
+                                trControl = trControl)
+results <- resamples(list('ROC-Based Classifier' = model1,
+                          'Opimal Weighted Nearest Neighbor' = model2,
+                          'Nearest Shrunken Centroids'= model3))
+bwplot(results)
+#Again, all models have similar results, ROC back to being the best model.
+```
+ 
+ 
