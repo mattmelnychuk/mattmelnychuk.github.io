@@ -1,0 +1,214 @@
+
+---
+output:
+  html_document:
+    theme: united
+title: "Matt Melnychuk's Midterm for R 421"
+---
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# {.tabset}
+
+## Introduction
+
+*Data:* The data for the mid-term project is the Rhode Island Department of Health Hospital Discharge Data.  Each row of the data represents a patient.
+
+The midterm has two components: the Rmarkdown notebook and the presentation.  This html file is the Rmarkdown notebook.  A separate file contains the presentation. 
+
+-------
+
+## I. Data Wrangling
+
+*Notice*:  Set eval=FALSE for first few chunks of code so that when knitting the program does not need to rerun the sas data and can skip to the cleaned data. The code works in RStudio, but appears to be blank in the knitted document.
+
+1. Download the data file `hdd0318cy.sas7bdat`.
+Downloaded the data from the Google drive link.
+
+2. Use `read_sas` in library `haven` to read the data. 
+```{r, eval=FALSE}
+library(haven)
+df <-read_sas("C:/Users/student/Desktop/R 421/hdd0318cy.sas7bdat")
+```
+
+    
+3. Filter the data to have only patients of the year 2018 (`yod==2018`)
+```{r, eval=FALSE}
+library(tidyverse)
+df18 <- df %>% 
+  filter(yod==18)
+```
+
+    
+4. Select to work with only following variables: 
+
+```{r, eval=FALSE}
+                      "yod", "payfix","pay_ub92","age",  
+                      "sex","raceethn","provider","moa", 
+                      "yoa","mod","admtype", "asource" , 
+                      "preopday" ,"los", "service" , "icu","ccu",    
+                      "dispub92", "payer"  ,"drg","trandb", 
+                      "randbg","randbs","orr", "anes","seq",   
+                      "lab","dtest", "ther","blood","phar", 
+                      "other","patcon","bwght","total","tot" ,  
+                      "ecodub92","b_wt","pt_state","diag_adm","ancilar" ,
+                      "campus","er_fee","er_chrg","er_mode","obs_chrg",
+                      "obs_hour","psycchrg","nicu_day"
+```
+
+```{r, eval=FALSE}
+df18B <-  select(df18, c("yod", "payfix","pay_ub92","age", "sex","raceethn","provider","moa","yoa","mod","admtype", "asource" ,"preopday" ,"los", "service" , "icu","ccu","dispub92", "payer"  ,"drg","trandb","randbg","randbs","orr", "anes","seq","lab", "dtest", "ther","blood","phar", "other","patcon","bwght", "total","tot" ,"ecodub92","b_wt","pt_state","diag_adm","ancilar" , "campus","er_fee","er_chrg","er_mode","obs_chrg","obs_hour","psycchrg","nicu_day"))
+```
+ 
+
+*Notice*:  Wrote data as a csv to help with later access.  (The original file is very large to read and takes a long time)
+```{r, eval=FALSE}
+write_csv(df18B,'MidtermClean.csv')
+```
+
+
+5. What are variables that have missing values?
+```{r}
+#Reread in the cleaned data from above as df
+library(tidyverse)
+df <- read_csv("C:/Users/student/Desktop/R 421/MidtermClean.csv")
+
+sum(is.na(df))
+colSums(is.na(df))
+#12 columns have missing values
+```
+
+6. Remove all variables with missing values
+*Notice*:  Did not remove raceethn (even though it had missing values) because it is an important variable in further questions.
+```{r}
+df2 <-  select(df, -c('payfix','admtype','asource','preopday','bwght','ecodub92','pt_state','diag_adm','er_mode','obs_hour','nicu_day'))
+```
+
+ 
+7. Refer to the data description in the file `HDD2015-18cy6-20-19.docx`, which variable recording the month of admission?, which variable recording the month of discharge?
+
+Month of admission is captured by the variable *moa*, and month of discharge is captured by the variable *mod*.
+
+8. Which month admitted the most number of patients? Which month admitted the most number of male patients?
+
+```{r}
+#count(moa) is stored as n by Rstudio; n represents number of observations in the data for that month of admission
+df2 %>% group_by(moa) %>% count(moa) %>% arrange(-n)
+```
+*October* (Month 10) was the month with the most admitted patients.
+
+```{r}
+#Male sex=1, Female sex=2
+df2 %>% filter(sex==1) %>% group_by(moa) %>% count(moa) %>% arrange(-n)
+```
+*October* (Month 10) was also the month with the most male patients admitted.
+
+9. Which month has the most number of teenage female patients?
+```{r}
+#Considering teenagers to be between ages 13-19
+df2 %>% filter(sex==2) %>% filter(age >=13) %>% 
+  filter(age<= 19) %>% group_by(moa) %>% count(moa) %>% arrange(-n)
+```
+*March* (Month 3) had the most female teenagers patients admitted into the hospital.
+
+10. Which provider has the most number of female patients in October? 
+```{r}
+df2 %>% filter(sex==2) %>% filter(moa ==10) %>% 
+  group_by(provider) %>% count(provider) %>% arrange(-n)
+```
+*Rhode Island Hospital* (Provider 7205) had the most female patients in October, slightly more than *Women and Infants* (Provider 7214).  Being from Rhode Island, this makes sense because those hospitals are larger than the others.
+
+11. Is female patients older than male patients, on average?
+```{r}
+table(df2$sex)
+df2 %>% filter(sex<=2) %>% group_by(sex) %>% summarise(mean(age))
+```
+According to the data, the average female patient is 50.86 years old and the average male patient is 51.50 years old.  This means that male patients are slightly older on average, but there is not a large difference.
+
+12. Calculate the average age of patients by months. Which month has the oldest patients on average age?
+```{r}
+df2 %>% group_by(moa) %>% summarise(MonthAge = mean(age))%>% arrange(-MonthAge)
+```
+The month with the oldest patients on average is *January* (Month 1).
+
+13. What is the name of the provider that has the highest total charge?
+```{r}
+library(tidyverse)
+df2$total <- as.numeric(df2$total)
+df2 %>% group_by(provider) %>% summarise(TotalCharge = sum(total))%>% arrange(-TotalCharge)
+```
+*Rhode Island Hospital* (Provider 7205) has the highest amount of total charge for all patients for 2018 at 1.8 billion, almost three times as much as its nearest competitor *Miriam* (Provider 7204), which made 680 million.
+
+14. What is the name of the provider that has the least total charge for teenage male on average?
+```{r}
+df2 %>% filter(sex==1) %>% filter(age >=13) %>% 
+  filter(age<= 19) %>% group_by(provider) %>% summarise(AvgCharge = mean(total))%>% arrange(AvgCharge)
+```
+The lowest average charge for a male teenager is by *Roger Williams* (Provider 7206) at 10,360.44.  The most expensive is *Bradley* (Provider 7215) at over 100,000 per patient.
+
+15. Calculate the length of stays by races.  Which race has the longest length of stays on average?
+```{r}
+df2 %>% group_by(raceethn) %>% summarise(AvgStay = mean(los))%>% arrange(-AvgStay)
+```
+The longest average race of stay is *9* which corresponds to unknown race or ethnicity.  The next longest length of stay is category *4*: American Indian.
+
+16. On average, how much a 20 year-old male white get charged for staying 1 day?
+```{r}
+df2 %>% filter(sex==1) %>% filter(raceethn ==1) %>% 
+  filter(age== 20) %>% filter(los ==1) %>% summarise(mean(total))
+```
+It costs a white, 20 year-old male *$15319.56* to stay one day.
+
+17. Write a paragraph to summarize the section and give your comments on the results. 
+
+This section tasked me with looking through the data and finding key insights.  First, I downloaded the data, read in the sas file (which took a very long time), and filtered to relevant information (key variables and only observations from 2018).  It is apparent that months with 31 days have more patients admitted, and February has the fewest patients admitted because it has only 28 days - this remained true even when looking at only male data.  This pattern does not completely hold when looking at female teenagers because there is less data so patterns may fall further away from what is expected due to smaller samples.  Rhode Island Hospital sees the most patients and also charged the most in 2018.  There is not much of a pattern for patient age and month or sex.  On average, Roger Williams seems to be the cheapest hospital, and throughout the state, a 20y.o. white male would pay 15319 for a one-night hospital stay.  In the next section, I will construct grpahs and other visuals to better examine trends in the data rather than mainly identifying largest and smallest subsets like in this past section.
+
+-------
+
+## II. Data Visualization
+
+Continue with the data from part I. 
+
+1. Provides at least 10 meaningful plots. Comments on the plots. All plots should have title, caption, appropriate labels on x and y-axis
+
+2. Make an animation plot. 
+
+3. Write a paragraph to summarize the section and give your comments on the results. 
+
+-------
+
+## III. Predictive Models
+
+Continue with the data from part I. Use the follows as the target and input variables: 
+
+*Target Variable*: Create the target variable taking value of 
+
+  - `low` if the total charge of a patient (`tot`) is smaller than the median of the total charge, and
+
+  - `high` otherwise. 
+
+*Input Variables*:
+
+  - "age","sex","raceethn","provider","moa","mod","admtype","campus", 'los'
+  
+-------
+
+1. Use `filter` function to filter out rows where `raceethn==''` or `admtype==''`. Make sure all the categorical variables are factor, numeric variables are numeric. Set Training : Testing Split = 10 : 90 
+
+2. Train a decision tree using `rpart`.  Plot the decision tree. Plot the variable importance ranked by the tree. 
+
+3. Using caret for this question. Set `Training Control` to be: Use Cross-Validation of 5 folds across all models.  Train & tune at least 3 different models (i.e. three different values for `method=` in the train function of caret).  Plot the hyper-parameter tuning plots for each model. 
+
+4. Plot the comparison of the models in 3. 
+
+5. What is your final selection for the model? Test the accuracy of your final model on the test data. 
+
+6. Create another `target` variable (binary), decide the input variables and redo 1 to 5. 
+
+7. Write a paragraph to summarize the section and give your comments on the results. 
+
+-------
