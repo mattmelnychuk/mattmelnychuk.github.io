@@ -32,4 +32,4 @@
 
 [Assignment 12](Assignment12.html)
 
-[Midterm In Progress](AAAA_Midterm.html)
+[Midterm 1 & 3](AAAA_Midterm.html)
