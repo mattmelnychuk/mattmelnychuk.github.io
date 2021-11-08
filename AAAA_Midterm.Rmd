@@ -73,7 +73,7 @@ write_csv(df18B,'MidtermClean.csv')
 
 
 5. What are the variables that have missing values?
-```{r}
+```{r, warning=FALSE}
 #Reread in the cleaned data from above as df
 library(tidyverse)
 df <- read_csv("C:/Users/student/Desktop/R 421/MidtermClean.csv")
@@ -85,7 +85,7 @@ colSums(is.na(df))
 
 6. Remove all variables with missing values.
 *Notice:*  I did not remove `raceethn` (even though it had missing values) because it is an important variable in further questions.
-```{r}
+```{r, warning=FALSE}
 df2 <-  select(df, -c('payfix','asource','preopday','bwght','ecodub92','pt_state','diag_adm','er_mode','obs_hour','nicu_day'))
 ```
 
@@ -96,20 +96,20 @@ Month of admission is captured by the variable `moa`, and month of discharge is 
 
 8. Which month had the most number of admitted patients? Which month the most number of admitted male patients?
 
-```{r}
+```{r, warning=FALSE}
 #count(moa) is stored as n by Rstudio; n represents number of observations in the data for that month of admission
 df2 %>% group_by(moa) %>% count(moa) %>% arrange(-n)
 ```
 October (`Month 10`) was the month with the most admitted patients.
 
-```{r}
+```{r, warning=FALSE}
 #Male sex=1, Female sex=2
 df2 %>% filter(sex==1) %>% group_by(moa) %>% count(moa) %>% arrange(-n)
 ```
 October (`Month 10`) was also the month with the most male patients admitted.
 
 9. Which month has the most number of teenage female patients?
-```{r}
+```{r, warning=FALSE}
 #Considering teenagers to be between ages 13-19
 df2 %>% filter(sex==2) %>% filter(age >=13) %>% 
   filter(age<= 19) %>% group_by(moa) %>% count(moa) %>% arrange(-n)
@@ -117,27 +117,27 @@ df2 %>% filter(sex==2) %>% filter(age >=13) %>%
 March (`Month 3`) had the most female teenagers patients admitted into the hospital.
 
 10. Which provider had the most number of female patients in October? 
-```{r}
+```{r, warning=FALSE}
 df2 %>% filter(sex==2) %>% filter(moa ==10) %>% 
   group_by(provider) %>% count(provider) %>% arrange(-n)
 ```
 Rhode Island Hospital (`Provider 7205`) had the most female patients in October, slightly more than Women and Infants (`Provider 7214`).  Being from Rhode Island, this makes sense because those hospitals are larger than the others.
 
 11. Are female patients older than male patients, on average?
-```{r}
+```{r, warning=FALSE}
 table(df2$sex)
 df2 %>% filter(sex<=2) %>% group_by(sex) %>% summarise(mean(age))
 ```
 According to the data, the average female patient is 50.86 years old and the average male patient is 51.50 years old.  This means that male patients are slightly older on average, but there is not a large difference.
 
 12. Calculate the average age of patients by month. Which month has the oldest patients by average age?
-```{r}
+```{r, warning=FALSE}
 df2 %>% group_by(moa) %>% summarise(MonthAge = mean(age))%>% arrange(-MonthAge)
 ```
 The month with the oldest patients on average is January (`Month 1`).
 
 13. What is the name of the provider that has the highest total charge?
-```{r}
+```{r, warning=FALSE}
 library(tidyverse)
 df2$total <- as.numeric(df2$total)
 df2 %>% group_by(provider) %>% summarise(TotalCharge = sum(total))%>% arrange(-TotalCharge)
@@ -146,7 +146,7 @@ Rhode Island Hospital (`Provider 7205`) has the highest amount of total charge f
 This is almost three times as much as its nearest competitor Miriam (`Provider 7204`), which made $680 million.
 
 14. What is the name of the provider that has the least total charge for teenage male on average?
-```{r}
+```{r, warning=FALSE}
 df2 %>% filter(sex==1) %>% filter(age >=13) %>% 
   filter(age<= 19) %>% group_by(provider) %>% summarise(AvgCharge = mean(total))%>% arrange(AvgCharge)
 ```
@@ -154,13 +154,13 @@ The lowest average charge for a male teenager is by Roger Williams (`Provider 72
 The most expensive is Bradley (`Provider 7215`) at over $100,000 per patient.
 
 15. Calculate the length of stays by race.  Which race has the longest length of stay on average?
-```{r}
+```{r, warning=FALSE}
 df2 %>% group_by(raceethn) %>% summarise(AvgStay = mean(los))%>% arrange(-AvgStay)
 ```
 The longest average race of stay is `9` which corresponds to unknown race or ethnicity.  The next longest length of stay is category `4`: American Indian.
 
 16. On average, how much does a 20 year-old white male get charged for staying 1 day?
-```{r}
+```{r, warning=FALSE}
 df2 %>% filter(sex==1) %>% filter(raceethn ==1) %>% 
   filter(age== 20) %>% filter(los ==1) %>% summarise(mean(total))
 ```
@@ -177,35 +177,287 @@ Rhode Island Hospital sees the most patients and also charged the most in 2018. 
 
 Continue with the data from part I. 
 
-*Notice:* I first wanted to change the coded variables so that they are easier to understand in the visuals
-```{r}
-#use word doc for hospital, race, admittance, other?
+*Notice:* I first wanted to change the coded variables so that they are easier to understand in the visuals.
+```{r, warning=FALSE}
+library(tidyverse)
 df2$hospital <- case_when(
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  df2$provider == '21854' ~ 'low',
-  TRUE ~ 'high')
+  df2$provider == '7201' ~ 'Newport',
+  df2$provider == '7202' ~ 'St. Joseph',
+  df2$provider == '7203' ~ 'Memorial',
+  df2$provider == '7204' ~ 'Miriam',
+  df2$provider == '7205' ~ 'Rhode Island Hospital',
+  df2$provider == '7206' ~ 'Roger Williams',
+  df2$provider == '7209' ~ 'South County',
+  df2$provider == '7210' ~ 'Kent County',
+  df2$provider == '7211' ~ 'Westerly',
+  df2$provider == '7212' ~ 'Rehab of RI',
+  df2$provider == '7213' ~ 'Landmark Medical Center',
+  df2$provider == '7214' ~ 'Women and Infants',
+  df2$provider == '7215' ~ 'Bradley',
+  df2$provider == '7216' ~ 'Butler',
+  TRUE ~ '')
+
+df2$RE2 <- case_when(
+  df2$raceethn == '1' ~ 'White',
+  df2$raceethn == '2' ~ 'Black',
+  df2$raceethn == '3' ~ 'Asian',
+  df2$raceethn == '4' ~ 'American Indian',
+  df2$raceethn == '5' ~ 'Native Hawaiian',
+  df2$raceethn == '6' ~ 'Other',
+  df2$raceethn == '7' ~ 'Hispanic',
+  df2$raceethn == '9' ~ 'Unknown',
+  TRUE ~ '')
+
+df2$SEX2 <- case_when(
+  df2$sex == '1' ~ 'Male',
+  df2$sex == '2' ~ 'Female',
+  TRUE ~ 'Unknown')
+
+df2$Camp2 <- case_when(
+  df2$campus == '1' ~ 'St. Joseph - Fatima',
+  df2$campus == '2' ~ 'St. Joseph - Specialty',
+  df2$campus == '3' ~ 'RI Adult',
+  df2$campus == '4' ~ 'RI Hasbro',
+  df2$campus == '0' ~ 'Only Campus',
+  TRUE ~ '')
+
+df2$Admit2 <- case_when(
+  df2$admtype == '1' ~ 'Emergency',
+  df2$admtype == '2' ~ 'Urgent',
+  df2$admtype == '3' ~ 'Electric',
+  df2$admtype == '4' ~ 'Newborn',
+  df2$admtype == '5' ~ 'Trauma',
+  df2$admtype == '9' ~ 'Unknown',
+  TRUE ~ '')
+
 ```
 
 
 1. Provides at least 10 meaningful plots. Comments on the plots. All plots should have title, caption, appropriate labels on x and y-axis
 
+### Do Hospitals Specialize?
+
+#### Age by Hospital (1):
+```{r}
+library(tidyverse)
+df2 %>% ggplot()+
+  geom_boxplot(mapping = aes(y = age, color = hospital))+
+    labs(title = 'Age by Hospital', x='', y='Age', fill='Hospital', caption = 'Bradley and W&I much younger.')
+```
+Bradley and Women and Infants hospitals both seem to have patients that are much younger than average - for Women and Infants this is not a surprise since they have lots of newborn patients.  The average age of patients in Butler hospital is also lower than typical at around 43 instead of being around 60.
+
+#### Sex by Hospital (2):
+```{r}
+df2 %>% ggplot()+geom_bar(mapping=aes(x=hospital, fill=SEX2), 
+           position = 'fill')+
+    labs(title = 'Sex by Hospital', x='', y='Proportion', fill='Sex', caption = 'W&I 75% female')
+```
+About 75% of the patients at Women and Infants are female, while most of the other hospitals are close to a 50/50 split.
+
+#### Age by Campus (3):
+```{r}
+df2$campus <- as.factor(df2$campus)
+df2 %>% ggplot()+
+  geom_boxplot(mapping = aes(y = age, color = campus))+
+    labs(title = 'Age by Campus', x='Campus 4 = Hasbro', y='Age', fill='Campus', caption = 'Hasbro is a childrens hospital')
+```
+Most hospitals only have one campus (indicated by campus = 0), but it was interesting to note that campus 4 (Hasbro) has much younger patients. This makes sense because Hasbro is a Children's hospital and does not treat older patients (the eldest patient appears to be about 25 years old or so).
+
+#### Type of Admittance by Hospital (4):
+```{r}
+df2 %>% ggplot()+geom_bar(mapping=aes(x=hospital, fill=Admit2),position = 'fill')+
+    labs(title = 'Admittance Reason by Hospital', x='', y='Proportion', fill='Hospital', caption = 'Bradley and Butler more urgent than emergency')
+```
+Bradley and Butler both seem to have many more patients designated as *urgent* than *emergency*, which may have something to do with the fact that those two hospitals tend to focus on psychiatric needs and mental health. The only other hospital to note is Women and Infants which has a large proportion of newborns for their patients and very few emergencies.
+
+#### Total ICU Days by Hospital (5):
+```{r}
+library(ggplot2)
+df2$icu <-as.numeric(df2$icu)
+df2$icu <- as.numeric(df2$icu/100)
+df2 %>% ggplot()+
+  geom_boxplot(mapping = aes(y = icu, color = hospital)) + labs(title = 'ICU stays by hospital', x='', y='Days', fill='Hospital', caption = 'Kent County has long ICU stays.')
+```
+It seems that the Kent County Hospital has the longest icu stays for patients. Perhaps the hospital is better equipped to help patients that need intensive care than other Rhode Island hospitals.
+
+### What makes patients stay longer?
+
+#### Distribution of Length of Stay (6):
+```{r}
+df2 %>% ggplot()+
+  geom_density(mapping = aes(x = los)) + labs(title = 'Distribution of Length of Stay', x='Days', y='Proportion', caption = 'Largely right-skewed')
+```
+Most stays are for only a few days, but there are a few patients who stayed in the hospital for a very long time.
+
+#### Impact of Race and Age on Length of Stay (7):
+```{r}
+df2  %>% ggplot()+
+  geom_point(mapping = aes(x = age, y = los, color = RE2)) + labs(title = 'Length of Stay by race and age', x='Age', y='Length of Stay', caption = 'No patterns immediately noticeable')
+```
+There does not appear to be much of an impact from either age or race and ethnicity on length of stay.
+
+#### Cost by Length of Stay by Sex (8):
+```{r}
+df2  %>% ggplot()+
+  geom_point(mapping = aes(x = los, y = tot, color = SEX2)) + labs(title = 'Cost by Length of Stay by Sex', x='Length of Stay', y='Total Cost', fill='Sex', caption = 'Longer stays lead to more expensive bills.')
+```
+Longer stays are more expensive (somewhat of an obvious conclusion).  It also appears that men and women pay around the same amount for a given length of stay and that men and women stay in the hospital for similar lengths of time.
+
+#### Length of Stay by Hospital (9):
+```{r}
+df2  %>% ggplot()+
+  geom_boxplot(mapping = aes(y = los, color = hospital)) + labs(title = 'Length of Stay by Hospital', y='Length of Stay', fill='Hospital', caption = 'Bradley and Butler slightly longer stays.')
+```
+
+#### Length of Stay by Hospital B(9B):
+```{r}
+df2  %>% ggplot()+
+  geom_boxplot(mapping = aes(y = log(los), color = hospital)) + labs(title = 'Length of Stay by Hospital', y='Length of Stay', fill='Hospital', caption = 'Bradley and Butler slightly longer stays.')
+```
+
+
+Bradley and Butler have longer stays on average compared to other hospitals (even though it is a bit difficult to tell in the graphic). They also have the longest outlier stays, although Rhode Island Hospital also has a few long-term patients.
+
+
+### What impacts birth weight?
+
+#### Birth weight by month by hospital (10):
+```{r}
+df2$b_wt <- as.numeric(df2$b_wt)
+df2 %>%  filter(b_wt>0) %>%  filter(Admit2 =='Newborn')%>% ggplot() + geom_smooth(mapping=aes(x=moa, y=b_wt)) + facet_wrap(vars(hospital)) + labs(title = 'Newborn Weight by Month by Hospital', x='Month', y='Weight (g)', caption = 'Smaller babies at W&I.')
+```
+Most babies are born with a weight of around 335g, but babies at Women and Infants are significantly smaller on average (and babies born at South County hospital are larger).  There does not appear to be any pattern to babies being heavier or lighter in any given month.
+
+#### Birth weight by race and sex (11):
+```{r}
+df2 %>%  filter(b_wt>0) %>% filter(SEX2 !='Unknown') %>% ggplot()+
+  geom_boxplot(mapping = aes(x=SEX2, y = b_wt, color = RE2)) + labs(title = 'Birth Weight by Race', x='Sex', y='Weight (g)', fill='Race/Ethnicity', caption = 'No significant difference in weight by race or sex.')
+```
+Race and sex have little impact on a baby's birth weight according to the graph.
+
+### Which hospitals cost the most?
+
+#### Histogram of Total Cost (12):
+```{r}
+df2 %>% filter (tot <=200000) %>% ggplot()+
+  geom_histogram(binwidth = 1000, mapping = aes(x = tot)) + labs(title = 'Histogram of Hospital Bills', x='Cost', y='Count', caption = 'Mostly lower bills, some right skew.')
+```
+Some excessively large bills were omitted so that the graph would better display the results. Most bills fall under $35,000 or so, but some bills are very large, leading to a right skew in the histogram.
+
+#### Average Cost by Hospital (13):
+```{r}
+df2 %>% ggplot()+geom_smooth(mapping = aes(x = age, y = tot, color = hospital)) + labs(title = 'Average Cost by Hospital by Age', x='Age', y='Cost', caption = 'Bradley is the most expensive.')
+```
+Bradley is the most expensive hospital by a large margin, and the next most expensive provider is Rhode Island Hospital. It seems like middle-aged people typically pay more than either younger or older patients based on the mostly parabolic curves (Butler follows the opposite pattern).
+
+#### Cost per patient by los (raceethn) (14):
+```{r}
+df2 %>% ggplot()+geom_smooth(mapping = aes(x = los, y = tot, color = RE2)) + labs(title = 'Average Cost by Race/Ethnicity by Length of Stay', x='Length of Stay', y='Cost', caption = 'Bradley is the most expensive.')
+```
+In general, it does not appear that race has an impact on total cost - at least through the first 100 or so days - since the lines are mostly overlapping. After 100 days, the lines start to separate so patients who identified as Hispanic or whose race/ethnicity was unknown typically pay more than patients who are white, black, or other.  This may be due to having less data points for patients who stay for longer periods of time.  Also, unsurprisingly, total cost increases as length of stay increases in general.
+
+#### Cost per day by hospital (15):
+```{r}
+df2$costperday <- df2$tot/df2$los
+df2 %>% ggplot()+
+  geom_density(mapping = aes(x = costperday, color = hospital)) + labs(title = 'Cost per day by Hospital', x='', y='Cost per day', fill='Hospital', caption = 'A few large values throw the scale way off.')
+```
+
+
+#### Cost per day by hospital B (15B):
+```{r}
+df2$lncpd <- log(df2$costperday)
+df2 %>% filter(costperday>0) %>%ggplot()+
+  geom_density(mapping = aes(x = lncpd, color = hospital)) + labs(title = 'Natural Log of Cost per day by Hospital', x='ln(costperday)', y='Density', fill='Hospital', caption = 'Butler and Bradley average less per day.')
+```
+
+#### Cost per day by hospital C (15C):
+```{r}
+df2$lncpd <- log(df2$costperday)
+df2 %>% filter(costperday>0) %>% filter(hospital !='Bradley') %>% filter(hospital !='Butler') %>%ggplot()+
+  geom_density(mapping = aes(x = lncpd, color = hospital)) + labs(title = 'Natural Log of Cost per day by Hospital', x='ln(costperday)', y='Density', fill='Hospital', caption = 'St. J and W&I are slightly cheaper per day.')
+```
+Originally, the scale made it difficult to interpret this graph. Next, Bradley and Butler were removed because they also made the graph difficult to interpret since they charge much less per day than other hospitals. Finally, it appears that St. Josephs and Women and Infants charge slightly less per day than other providers in Rhode Island.
+
+#### Cost by admittance type (16):
+```{r}
+df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(tot), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'No significant difference in weight by race or sex.')
+```
+Trauma costs more on average than any of the other reasons for admition to the hospital. Also, newborns are cheaper than any other reason for visiting the hospital.
+
+#### Cost per day by Admittance type (16B):
+```{r}
+df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(costperday), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'No significant difference in weight by race or sex.')
+```
+Newborns cost much less per day than any other reason for visiting the hospital. Trauma now appears to be in line with other reasons for visiting when looking at cost per day instead of just total cost, which means that trauma patients may just be in the hospital for longer periods of time.
+
 2. Make an animation plot. 
 
+### Revealing Line Plot - Revenue by hospital by month (17):
+```{r animation plot, warning=FALSE, include = FALSE}
+library(ggplot2)
+library(gganimate)
+df2$moa <- as.numeric(df2$moa)
+df2 %>%  group_by(hospital, moa) %>% summarise(TotalCost = sum(tot)) %>% 
+  ggplot(aes(y=TotalCost,
+            x=moa, color=hospital))+ 
+  geom_line()+
+  transition_reveal(moa) + labs(x='Month', 
+       y = 'Revenue from All Patients', 
+       color='Provider', 
+       title = 'Revenue by Provider by Month of Admittance', 
+       caption = 'RI Hospital receives the most $')
+
+```
+Rhode Island Hospital always receives the most revenue in a given month.  Also, it appears that the revenue is mostly consistent for hospitals, meaning there is no large annual pattern.
+
+### Animated Bar Race - Births by Hospital (18):
+```{r, warning=FALSE}
+d1 <- df2 %>% filter(Admit2 == 'Newborn') %>% group_by(hospital, moa) %>% summarise(births = n())
+d2 <- d1 %>% group_by(moa) %>% mutate(rank=rank(-births)) %>% ungroup()
+a1 <- d2 %>% ggplot(aes(x=rank, y=births, group=hospital, fill=hospital, label=hospital)) + geom_col()+
+    geom_text(aes(y = births, label = hospital), hjust = 1.4)+ 
+    coord_flip(clip = "off", expand = FALSE) +scale_x_reverse()+
+    labs(title = 'Month {closest_state}', x='', y='Total Number of Births', fill='Hospital', caption = 'Births by provider')+
+    theme(plot.title = element_text(hjust = 1, size = 22),
+          axis.ticks.y = element_blank(),
+          axis.text.y  = element_blank()) + 
+    transition_states(moa)+
+    ease_aes("cubic-in-out")
+library(gifski)
+animate(a1, renderer = gifski_renderer())
+```
+Women and Infants consistently has the most births.  I will run this same graphic again without that hospital since it throws off the scale so much.
+
+```{r, warning=FALSE}
+d1 <- df2 %>% filter(Admit2 == 'Newborn',hospital!='Women and Infants') %>% group_by(hospital, moa) %>% summarise(births = n())
+d2 <- d1 %>% group_by(moa) %>% mutate(rank=rank(-births)) %>% ungroup()
+a1 <- d2 %>% ggplot(aes(x=rank, y=births, group=hospital, fill=hospital, label=hospital)) + geom_col()+
+    geom_text(aes(y = births, label = hospital), hjust = 1.4)+ 
+    coord_flip(clip = "off", expand = FALSE) +scale_x_reverse()+
+    labs(title = 'Month {closest_state}', x='', y='Total Number of Births', fill='Hospital', caption = 'Births by Provider (exclduing Women and Infants)')+
+    theme(plot.title = element_text(hjust = 1, size = 22),
+          axis.ticks.y = element_blank(),
+          axis.text.y  = element_blank()) + 
+    transition_states(moa)+
+    ease_aes("cubic-in-out")
+library(gifski)
+animate(a1, renderer = gifski_renderer())
+```
+There are four other hospitals in Rhode Island where babies were born during 2018.  Kent County Hospital normally has more births than South County Hospital, but they do briefly change rank in February and March.  It is possible that babies are born in these other hospitals because the mothers may be located far away from Providence and choose to go to a closer hospital instead.
+
 3. Write a paragraph to summarize the section and give your comments on the results. 
+
+In general, some hospitals specialize while others do not. For example, the average patient age is much younger at Bradley, Women and Infants, and the Hasbro branch of RI Hospital. Bradley and Butler also have more *urgent* visits compared to *emergency* visits at other providers, possibly because these two centers are focused more on psychological well-being and mental health than solely physical health. Also, it appears that the longest ICU stays take place at Kent County.
+
+The length of time a patient spends in the hospital is very right skewed. It was determined that age and race have no impact on how long someone spends in the hospital.  Bradley and Butler typically have patients stay for longer periods of time, which often means that patients here have larger bills.
+
+Bradley is the most expensive hospital in terms of total bill by a large margin, followed by Rhode Island hospital in second. Middle-aged patients typically have slightly larger bills than young or elderly patients (as demonstrated by the parabolic curves), but it is important to note that price by age is the exact opposite for Butler. Race has little impact on total cost over the first 100 days, and it is possible that the supposed impact it plays on the bill for longer shifts is due to a small amount of data.
+
+In general, cost is right skewed, and it may make more sense to examine cost per day in determining which hospital is the cheapest or most expensive. In terms of cost per day, Bradley and Butler are the cheapest (possibly due to having such long-term residents), with Women and Infants and St. Josephs hospital being the next cheapest. Also, trauma typically is more expensive than other reasons for admittance, but on a daily basis it is more in-line with other reasons for admittance.  Newborns cost less than other reasons both on a total basis and on a daily basis.  Based on the revealing line plot, Rhode Island hospital consistently brings in the most revenue, and revenue appears to be very consistent month to month with no apparent seasonal pattern.
+
+When looking at birth weights, race and sex have no impact, nor does the month of birth. In general, babies born at Women and Infants are slightly smaller than average, and Women and Infants handles the majority of births in the state by a large margin as demonstrated by the animated bar race.
+
 
 -------
 
@@ -218,7 +470,7 @@ Continue with the data from part I. Use the following as the target and input va
   - `low` if the total charge of a patient (`tot`) is smaller than the median of the total charge, and
 
   - `high` otherwise. 
-```{r}
+```{r, warning=FALSE}
 median(df2$tot)
 
 df2$target <- case_when(
@@ -237,7 +489,7 @@ df2$target <- case_when(
 
 *Notice:* I will be using 10% of the data as a test and 90% of the data to train (it does not make sense to split 90% in testing or only 10% in training).
 
-```{r}
+```{r, warning=FALSE}
 library(tidyverse)
 df3 <- df2 %>% filter(raceethn!='') %>% filter(admtype!='')
 df3 <- select(df3, c("age","sex","raceethn","provider", "moa","mod","campus", 'los','target','admtype'))
@@ -267,7 +519,7 @@ df3_test <- df3[-splitIndex,]
 
 2. Train a decision tree using `rpart`.  Plot the decision tree. 
 
-```{r}
+```{r, warning=FALSE}
 library(rpart)
 set.seed(2020)
 tree_model <- rpart(target ~ ., data = df3_train,
@@ -280,7 +532,7 @@ fancyRpartPlot(tree_model)
 The first split involves `length of stay`, and it makes sense that length of stay helps to determine if a cost is expensive (longer stays usually lead to more expensive bills). After that, it seems that different `providers` may be cheaper or more expensive, which also makes sense in constructing a decision tree.  Also, `type of admission` is a split which can help determine cost.  This makes sense because Trauma (`5`) may lead to higher costs in shorter stays than something like a newborn.
 
 2b. Plot the variable importance ranked by the tree. 
-```{r}
+```{r, warning=FALSE}
 tree_model$variable.importance
 barplot(tree_model$variable.importance)
 ```
@@ -289,7 +541,7 @@ barplot(tree_model$variable.importance)
 
 3. Using caret for this question. Set `Training Control` to be: Use Cross-Validation of 5 folds across all models.  Train & tune at least 3 different models (i.e. three different values for `method=` in the train function of caret).  Plot the hyper-parameter tuning plots for each model. 
 
-```{r}
+```{r models A, warning=FALSE}
 set.seed(2020)
 df3small <- sample_n(df3,13000)
 library(caret)
@@ -326,7 +578,7 @@ plot(model3)
 It appears more predictors leads to better models, and the gini split is better than the extra trees split.
 
 4. Plot the comparison of the models in 3. 
-```{r}
+```{r, warning=FALSE}
 results <- resamples(list('ROC-Based Classifier' = model1,
                           'Nearest Shrunken Centroids'= model2,
                           'Ranger Forest'=model3))
@@ -338,7 +590,7 @@ The `ranger` random forest has the highest accuracy of the three models tested a
 
 My selection is to use the `ranger` method of creating a random forest with gini splits, `5 predictors`, and a `minimum node size of 9`.
 
-```{r}
+```{r, warning=FALSE}
 tuneGrid = expand.grid(mtry = 5:5,
                        splitrule = c('gini'),
                        min.node.size = c(9:9))
@@ -356,7 +608,7 @@ The overall accuracy of this model is `84.1%` when using the model on 10% of the
 
 6. Create another `target` variable (binary), decide the input variables and redo 1 to 5. 
 
-```{r}
+```{r, warning=FALSE}
 median(df3$los)
 df3$targetB <- case_when(
   df3$los < 3 ~ 'low',
@@ -385,13 +637,13 @@ fancyRpartPlot(tree_model)
 ```
 The first split for the model has to deal with `admittance type`: if a patient is admitted for an emergency, urgent, trauma, or unknown reason, the patient is likely to stay for 3 days or longer.  The other split shown above has to deal with which hospital (`provider`) a patient is at.
 
-```{r}
+```{r, warning=FALSE}
 tree_model$variable.importance
 barplot(tree_model$variable.importance)
 ```
 The most important variable in determining if a patient will stay longer than two days is the `reason for admittance`, which makes sense from above.  The next most important variables are `provider` and `age`.  Maybe people go to different hospitals for major issues than for quick concerns, and it is possible that age has an impact both on why patients go to the hospital and how quickly they may recover.
 
-```{r}
+```{r models B, warning=FALSE}
 set.seed(2020)
 df3Bsmall <- sample_n(df3B,13000)
 library(caret)
@@ -427,7 +679,7 @@ plot(model3)
 ```
 It appears that five predictors leads to the best models, and the gini split is better than the extra trees split again, but not by as much as when predicting high/low cost.
 
-```{r}
+```{r, warning=FALSE}
 results <- resamples(list('ROC-Based Classifier' = model1,
                           'Nearest Shrunken Centroids'= model2,
                           'Ranger Forest'=model3))
@@ -437,7 +689,7 @@ Again, the random forest `ranger` model outperforms the others, but the models a
 
 My selection is to use the `ranger` method of creating a random forest with `gini` splits, `5 predictors`, and a `minimum node size of 8`.
 
-```{r}
+```{r, warning=FALSE}
 tuneGrid = expand.grid(mtry = 5:5,
                        splitrule = c('gini'),
                        min.node.size = c(8:8))
