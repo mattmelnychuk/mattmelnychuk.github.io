@@ -381,13 +381,13 @@ Originally, the scale made it difficult to interpret this graph. Next, Bradley a
 
 #### Cost by admittance type (16):
 ```{r}
-df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(tot), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'No significant difference in weight by race or sex.')
+df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(tot), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'Trauma costs more on average.')
 ```
 Trauma costs more on average than any of the other reasons for admition to the hospital. Also, newborns are cheaper than any other reason for visiting the hospital.
 
 #### Cost per day by Admittance type (16B):
 ```{r}
-df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(costperday), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'No significant difference in weight by race or sex.')
+df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(costperday), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'Newborns much cheaper per day.')
 ```
 Newborns cost much less per day than any other reason for visiting the hospital. Trauma now appears to be in line with other reasons for visiting when looking at cost per day instead of just total cost, which means that trauma patients may just be in the hospital for longer periods of time.
 

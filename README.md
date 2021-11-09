@@ -1,6 +1,6 @@
 # Math 421. Statistical Analysis with R
 
-##First Half
+## First Half
 
 [Assignment 1](Assignment1.html)
 
@@ -34,6 +34,8 @@
 
 [Assignment 12](Assignment12.html)
 
-##Midterm
+## Midterm
 
 [Midterm HTML](AAAA_Midterm.html)
+
+[Midterm Presentation](AAAA_PresMidterm.html)

@@ -1,0 +1,607 @@
+
+---
+title: "Statistical Analysis with R: Midterm Presentation"
+author: <font size="6"> Matt Melnychuk </font>
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      
+class: inverse, middle, center
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+
+#xaringanExtra::use_fit_screen()
+```
+class: inverse, middle, center
+# Graphs
+---
+# Questions Examined:
+
+--
+
+- Do Hospitals Specialize?
+
+--
+
+- What makes patients stay longer?
+
+--
+
+- What impacts birth weight?
+
+--
+
+- Which hospitals cost the most?
+
+
+---
+# Do Hospitals Specialize?
+
+- Age?
+
+- Sex?
+
+- Type of Service/Admittance?
+
+---
+```{r, echo=FALSE, message=FALSE}
+
+library(tidyverse)
+df <- read_csv("C:/Users/student/Desktop/R 421/MidtermClean.csv")
+df2 <-  select(df, -c('payfix','asource','preopday','bwght','ecodub92','pt_state','diag_adm','er_mode','obs_hour','nicu_day'))
+df2$hospital <- case_when(
+  df2$provider == '7201' ~ 'Newport',
+  df2$provider == '7202' ~ 'St. Joseph',
+  df2$provider == '7203' ~ 'Memorial',
+  df2$provider == '7204' ~ 'Miriam',
+  df2$provider == '7205' ~ 'Rhode Island Hospital',
+  df2$provider == '7206' ~ 'Roger Williams',
+  df2$provider == '7209' ~ 'South County',
+  df2$provider == '7210' ~ 'Kent County',
+  df2$provider == '7211' ~ 'Westerly',
+  df2$provider == '7212' ~ 'Rehab of RI',
+  df2$provider == '7213' ~ 'Landmark Medical Center',
+  df2$provider == '7214' ~ 'Women and Infants',
+  df2$provider == '7215' ~ 'Bradley',
+  df2$provider == '7216' ~ 'Butler',
+  TRUE ~ '')
+
+df2$RE2 <- case_when(
+  df2$raceethn == '1' ~ 'White',
+  df2$raceethn == '2' ~ 'Black',
+  df2$raceethn == '3' ~ 'Asian',
+  df2$raceethn == '4' ~ 'American Indian',
+  df2$raceethn == '5' ~ 'Native Hawaiian',
+  df2$raceethn == '6' ~ 'Other',
+  df2$raceethn == '7' ~ 'Hispanic',
+  df2$raceethn == '9' ~ 'Unknown',
+  TRUE ~ '')
+
+df2$SEX2 <- case_when(
+  df2$sex == '1' ~ 'Male',
+  df2$sex == '2' ~ 'Female',
+  TRUE ~ 'Unknown')
+
+df2$Camp2 <- case_when(
+  df2$campus == '1' ~ 'St. Joseph - Fatima',
+  df2$campus == '2' ~ 'St. Joseph - Specialty',
+  df2$campus == '3' ~ 'RI Adult',
+  df2$campus == '4' ~ 'RI Hasbro',
+  df2$campus == '0' ~ 'Only Campus',
+  TRUE ~ '')
+
+df2$Admit2 <- case_when(
+  df2$admtype == '1' ~ 'Emergency',
+  df2$admtype == '2' ~ 'Urgent',
+  df2$admtype == '3' ~ 'Electric',
+  df2$admtype == '4' ~ 'Newborn',
+  df2$admtype == '5' ~ 'Trauma',
+  df2$admtype == '9' ~ 'Unknown',
+  TRUE ~ '')
+```
+
+# Age by Hospital
+
+```{r, echo=FALSE, out.width = "50%"}
+library(tidyverse)
+df2 %>% ggplot()+ geom_boxplot(mapping = aes(y = age, color = hospital))+ labs(title = 'Age by Hospital', x='', y='Age', fill='Hospital', caption = 'Bradley and W&I much younger.')
+```
+
+- Bradley focuses exclusively on younger patients.
+
+- Women and Infants also has lots of young patients and newborns.
+
+- Hasbro (`Campus 4`) also focuses mainly on treating children.
+
+---
+# Sex by Hospital
+
+```{r, echo=FALSE, out.width = "50%"}
+library(tidyverse)
+df2 %>% ggplot()+geom_bar(mapping=aes(x=hospital, fill=SEX2), 
+           position = 'fill')+
+    labs(title = 'Sex by Hospital', x='', y='Proportion', fill='Sex', caption = 'W&I 75% female')
+```
+ 
+- Women and Infants focuses mainly on women
+
+- All other hospitals are split mostly 50/50
+
+---
+# Admittance by Hospital
+
+```{r, echo=FALSE, out.width = "50%"}
+df2 %>% ggplot()+geom_bar(mapping=aes(x=hospital, fill=Admit2),position = 'fill')+
+    labs(title = 'Admittance Reason by Hospital', x='', y='Proportion', fill='Hospital', caption = 'Bradley and Butler more urgent than emergency')
+```
+
+- Bradley and Butler have lots of urgent
+
+- Maybe because Bradley and Butler are psychiatric hospitals
+
+- Women and Infants has lots of newborns
+
+---
+# ICU Length by Hospital
+
+```{r, echo=FALSE, out.width = "50%"}
+library(ggplot2)
+df2$icu <-as.numeric(df2$icu)
+df2$icu <- as.numeric(df2$icu/100)
+df2 %>% ggplot()+
+  geom_boxplot(mapping = aes(y = icu, color = hospital)) + labs(title = 'ICU stays by hospital', x='', y='Days', fill='Hospital', caption = 'Kent County has long ICU stays.')
+```
+
+- Longest intensive care stays in Kent County hospital
+
+- Maybe they are better equipped for these specific needs
+
+---
+# Why do patients stay for a long time?
+
+- Age? 
+
+- Race / ethnicity?
+
+- Impact of Hospital?
+
+---
+# Length of Stay by Age & Race / Ethnicity?
+
+```{r, echo=FALSE, out.width = "50%"}
+df2  %>% ggplot()+
+  geom_point(mapping = aes(x = age, y = los, color = RE2)) + labs(title = 'Length of Stay by race and age', x='Age', y='Length of Stay', caption = 'No patterns immediately noticeable')
+```
+
+- No obvious patterns to race
+
+- Most lengths shorter than 75 days, a few longer term stays
+
+- Older patients are more short-term, no other obvious patterns
+
+
+---
+# Length of Stay by Hospital
+
+```{r, echo=FALSE, out.width = "50%"}
+df2  %>% ggplot()+
+  geom_boxplot(mapping = aes(y = log(los), color = hospital)) + labs(title = 'Length of Stay by Hospital', y='Length of Stay', fill='Hospital', caption = 'Bradley and Butler slightly longer stays.')
+```
+
+- Used log(length of stay) to help with visuals
+
+- Bradley and Butler longer stays (psych hospitals again)
+
+- South County & Women and Infants are the shortest lengths
+
+---
+# What impacts birth weight?
+
+- Hospital of birth?
+
+- Month?
+
+- Race / ethnicity?
+
+- Sex?
+
+---
+# Weight of baby by Hospital and Month
+```{r, echo=FALSE, out.width = "50%"}
+df2$b_wt <- as.numeric(df2$b_wt)
+df2 %>%  filter(b_wt>0) %>%  filter(Admit2 =='Newborn')%>% ggplot() + geom_smooth(mapping=aes(x=moa, y=b_wt)) + facet_wrap(vars(hospital)) + labs(title = 'Newborn Weight by Month by Hospital', x='Month', y='Weight (g)', caption = 'Smaller babies at W&I.')
+```
+
+- No monthly pattern to weights
+
+- Babies born at Women and Infants are smaller
+
+- Maybe Women and Infants has more resources for premature babies
+
+---
+# Birthweight by sex and race
+```{r, echo=FALSE, out.width = "50%"}
+df2 %>%  filter(b_wt>0) %>% filter(SEX2 !='Unknown') %>% ggplot()+
+  geom_boxplot(mapping = aes(x=SEX2, y = b_wt, color = RE2)) + labs(title = 'Birth Weight by Race', x='Sex', y='Weight (g)', fill='Race/Ethnicity', caption = 'No significant difference in weight by race or sex.')
+```
+
+- No significant differences by race or sex
+
+---
+# Why are hospital bills so expensive?
+
+- Distribution of total bill?
+
+- Age?
+
+- Reason for admittance?
+
+- Hospital?
+
+---
+# Distribution of Total Cost
+```{r, echo=FALSE, out.width = "50%"}
+df2 %>% filter (tot <=200000) %>% ggplot()+
+  geom_histogram(binwidth = 1000, mapping = aes(x = tot)) + labs(title = 'Histogram of Hospital Bills', x='Cost', y='Count', caption = 'Mostly lower bills, some right skew.')
+```
+
+- Right skewed (some very large bills)
+
+- Most bills under ~$35,000
+
+---
+# Average Cost by Hospital by Age
+```{r, echo=FALSE, out.width = "50%"}
+df2 %>% ggplot()+geom_smooth(mapping = aes(x = age, y = tot, color = hospital)) + labs(title = 'Average Cost by Hospital by Age', x='Age', y='Cost', caption = 'Bradley is the most expensive.')
+```
+
+- Bradley most expensive, RI Hospital second most
+
+- Middle-aged patients typically pay more (based on parabolic curve)
+
+- Butler is actually cheaper for middle-aged patients
+
+---
+# Average Cost by Admittance Type
+```{r, echo=FALSE, out.width = "50%"}
+df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(tot), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'Trauma costs more on average.')
+```
+
+- Trauma costs more
+
+- Newborns cost less
+---
+# Average Cost per Day by Admittance Type
+```{r, echo=FALSE, out.width = "50%"}
+df2$costperday <- df2$tot/df2$los
+df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(costperday), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'Newborns much cheaper per day.')
+```
+
+- Newborn visits cost much less than average on a per day basis
+
+- Trauma costs now more in-line with other reasons
+
+- Maybe trauma care itself isn't too expensive, just long time in hospital
+
+---
+# Average Cost Per Day by Hospital
+```{r, echo=FALSE, out.width = "50%"}
+df2$lncpd <- log(df2$costperday)
+df2 %>% filter(costperday>0) %>%ggplot()+
+  geom_density(mapping = aes(x = lncpd, color = hospital)) + labs(title = 'Natural Log of Cost per day by Hospital', x='ln(costperday)', y='Density', fill='Hospital', caption = 'Butler and Bradley average less per day.')
+```
+
+- Used log transformation to handle right skew
+
+- Bradley and Butler cost much less per day
+
+---
+# Average Cost Per Day by Hospital
+
+```{r, echo=FALSE, out.width = "50%"}
+df2$lncpd <- log(df2$costperday)
+df2 %>% filter(costperday>0) %>% filter(hospital !='Bradley') %>% filter(hospital !='Butler') %>%ggplot()+
+  geom_density(mapping = aes(x = lncpd, color = hospital)) + labs(title = 'Natural Log of Cost per day by Hospital', x='ln(costperday)', y='Density', fill='Hospital', caption = 'St. J and W&I are slightly cheaper per day.')
+```
+
+- St. Josephs and Women and Infants slightly cheaper per day
+
+- This may be caused by many W&I patients having the reason as newborn
+
+- Rest of hospitals have similar cost distributions
+
+---
+# Revealing Line Graph
+```{r, echo=FALSE, out.width = "50%"}
+library(ggplot2)
+library(gganimate)
+df2$moa <- as.numeric(df2$moa)
+df2 %>%  group_by(hospital, moa) %>% summarise(TotalCost = sum(tot)) %>% 
+  ggplot(aes(y=TotalCost,
+            x=moa, color=hospital))+ 
+  geom_line()+
+  transition_reveal(moa) + labs(x='Month', 
+       y = 'Revenue from All Patients', 
+       color='Provider', 
+       title = 'Revenue by Provider by Month of Admittance', 
+       caption = 'RI Hospital receives the most $')
+```
+
+- Rhode Island Hospital consistently receives the most revenue
+
+- No apparent pattern to cash flow (no dramatic seasonal changes)
+
+---
+# Animated Bar Race
+
+```{r, echo=FALSE, out.width = "50%"}
+d1 <- df2 %>% filter(Admit2 == 'Newborn',hospital!='Women and Infants') %>% group_by(hospital, moa) %>% summarise(births = n())
+d2 <- d1 %>% group_by(moa) %>% mutate(rank=rank(-births)) %>% ungroup()
+a1 <- d2 %>% ggplot(aes(x=rank, y=births, group=hospital, fill=hospital, label=hospital)) + geom_col()+
+    geom_text(aes(y = births, label = hospital), hjust = 1.4)+ 
+    coord_flip(clip = "off", expand = FALSE) +scale_x_reverse()+
+    labs(title = 'Month {closest_state}', x='', y='Total Number of Births', fill='Hospital', caption = 'Births by Provider (exclduing Women and Infants)')+
+    theme(plot.title = element_text(hjust = 1, size = 22),
+          axis.ticks.y = element_blank(),
+          axis.text.y  = element_blank()) + 
+    transition_states(moa)+
+    ease_aes("cubic-in-out")
+library(gifski)
+animate(a1, renderer = gifski_renderer())
+
+```
+
+- Ran plot without W& I; always have most births (~750 per month)
+
+- Kent County usually more than South County (except Feb and March)
+
+- Maybe babies born here if mothers are not located close to Providence
+
+---
+class: inverse, middle, center
+# Predicitive Modeling Section
+
+---
+# Model for High Cost
+
+```{r, echo=FALSE, out.width = "42%"}
+df2$target <- case_when(
+  df2$tot < 21854 ~ 'low',
+  df2$tot >= 21854 ~'high',
+  TRUE ~ 'high')
+library(tidyverse)
+df3 <- df2 %>% filter(raceethn!='') %>% filter(admtype!='')
+df3 <- select(df3, c("age","sex","raceethn","provider", "moa","mod","campus", 'los','target','admtype'))
+
+#categorical variables
+df3$sex <- as.factor(df3$sex)
+df3$raceethn <- as.factor(df3$raceethn)
+df3$provider <- as.factor(df3$provider)
+df3$moa <- as.factor(df3$moa)
+df3$mod <- as.factor(df3$mod)
+df3$campus <- as.factor(df3$campus)
+df3$target <- as.factor(df3$target)
+df3$admtype <-as.factor(df3$admtype)
+
+#continuous variables
+df3$los <- as.numeric(df3$los)
+df3$age <- as.numeric(df3$age)
+
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df3$target, p = .90, 
+                                  list = FALSE)
+df3_train <- df3[ splitIndex,]
+df3_test <- df3[-splitIndex,]
+
+set.seed(2020)
+df3small <- sample_n(df3,13000)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df3small$target, p = .90, 
+                                  list = FALSE)
+df3_train <- df3small[ splitIndex,]
+df3_test <- df3small[-splitIndex,]
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+
+model1 <- train(target~., data=df3_train, 
+                                method = "rocc", 
+                                trControl = trControl)
+model2 <- train(target~., data=df3_train, 
+                    method = "pam", 
+                                trControl = trControl)
+
+tuneGrid = expand.grid(mtry = 2:5,
+                       splitrule = c('gini', 'extratrees'),
+                       min.node.size = c(5:10))
+set.seed(2020)
+model3 <- train(target~., data=df3_train, 
+                    method = "ranger", 
+                    trControl = trControl,
+                    tuneGrid = tuneGrid)
+
+results <- resamples(list('ROC-Based Classifier' = model1,
+                          'Nearest Shrunken Centroids'= model2,
+                          'Ranger Forest'=model3))
+bwplot(results)
+
+```
+
+- Predicting High Cost in 3 methods
+
+- Ranger method looks best
+
+- Need to further examine which hyper parameters to use
+
+---
+# Final Model Decision and Accuracy
+
+```{r, echo=FALSE, out.width = "50%"}
+set.seed(2020)
+model3 <- train(target~., data=df3_train, 
+                    method = "ranger", 
+                    trControl = trControl,
+                    tuneGrid = tuneGrid)
+plot(model3)
+```
+
+- Gini splits, 5 variables to choose, min node = 9
+
+- Accuracy = 84.06%
+
+---
+# My Model of Choice
+
+- Similar idea, binary test
+
+- Want to examine what determines if length of stay is greater than median
+
+- Median is 3 days
+
+- Check if these models agree with graphs 
+
+---
+# Decision Tree
+```{r, echo=FALSE, out.width = "50%"}
+df3$targetB <- case_when(
+  df3$los < 3 ~ 'low',
+  df3$los >= 3 ~'high',
+  TRUE ~ 'high')
+
+df3$targetB <- as.factor(df3$targetB)
+df3B <- select(df3,-c('los','target'))
+
+#back to using full data set
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df3B$targetB, p = .90, 
+                                  list = FALSE)
+df3_train <- df3B[ splitIndex,]
+df3_test <- df3B[-splitIndex,]
+
+library(rpart)
+set.seed(2020)
+tree_model <- rpart(targetB ~ ., data = df3_train,
+                 control = rpart.control(maxdepth = 4))
+
+# Plot the results
+library(rattle)
+fancyRpartPlot(tree_model)
+```
+
+- First split is admittance type: emergency, unknown, trauma, and other lead to long stays
+
+- Next split is hospital treating the patient
+
+---
+# Variable Importance
+```{r, echo=FALSE, out.width = "42%"}
+barplot(tree_model$variable.importance)
+```
+
+- Most important variable is reason for admittance (1st split)
+
+- Next most important are provider (and campus) and age, this agrees with charts earlier
+
+- Race plays a very small role, rest of variables have no impact
+
+---
+# Hyperparameter Selection in Ranger
+
+```{r, echo=FALSE, out.width = "50%"}
+set.seed(2020)
+df3Bsmall <- sample_n(df3B,13000)
+library(caret)
+set.seed(2020)
+splitIndex <- createDataPartition(df3Bsmall$targetB, p = .90, 
+                                  list = FALSE)
+df3_train <- df3Bsmall[ splitIndex,]
+df3_test <- df3Bsmall[-splitIndex,]
+
+trControl = trainControl(method = "cv",
+                         number = 5)
+
+model1 <- train(targetB~., data=df3_train, 
+                                method = "rocc", 
+                                trControl = trControl)
+
+model2 <- train(targetB~., data=df3_train, 
+                    method = "pam", 
+                                trControl = trControl)
+
+tuneGrid = expand.grid(mtry = 2:5,
+                       splitrule = c('gini', 'extratrees'),
+                       min.node.size = c(5:10))
+set.seed(2020)
+model3 <- train(targetB~., data=df3_train, 
+                    method = "ranger", 
+                    trControl = trControl,
+                    tuneGrid = tuneGrid)
+plot(model3)
+
+```
+
+- Gini split better than extra trees again (but not by as much as before)
+
+- 5 variable predictors at each step, minimum node size = 8
+
+---
+# Model Comparison
+```{r, echo=FALSE, out.width = "50%"}
+results <- resamples(list('ROC-Based Classifier' = model1,
+                          'Nearest Shrunken Centroids'= model2,
+                          'Ranger Forest'=model3))
+bwplot(results)
+```
+
+- Random forest (`ranger`) is the best model again
+
+- Testing accuracy of 65.51%
+
+---
+class: inverse, middle, center
+# Errors/ Issues
+
+---
+# Errors / Issues
+
+--
+
+- interpretability
+
+    - used Google doc to connect variable codes to name (provider, sex, reason for admittance)
+    
+--
+
+- large data set
+
+    - used a random sample for some of the modeling as needed
+
+--
+
+- skewness
+
+    - used log(length of stay) and log(total cost) on some graphs
+
+--
+
+- When creating the PowerPoint, I could not properly download xaringanExtra to use fit to screen
+
+    - Sized images to 50% using alternative method
+
+
+---
+class: inverse, middle, center
+# Thank You!
+### Any Questions?
+##### November 11, 2021
+

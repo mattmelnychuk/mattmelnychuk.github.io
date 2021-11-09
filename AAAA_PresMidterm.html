@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Statistical Analysis with R: Midterm Presentation</title>
+    <meta charset="utf-8" />
+    <meta name="author" content=" Matt Melnychuk " />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Statistical Analysis with R: Midterm Presentation
+### <font size="6"> Matt Melnychuk </font>
+
+---
+
+
+
+class: inverse, middle, center
+# Graphs
+---
+# Questions Examined:
+
+--
+
+- Do Hospitals Specialize?
+
+--
+
+- What makes patients stay longer?
+
+--
+
+- What impacts birth weight?
+
+--
+
+- Which hospitals cost the most?
+
+
+---
+# Do Hospitals Specialize?
+
+- Age?
+
+- Sex?
+
+- Type of Service/Admittance?
+
+---
+
+
+# Age by Hospital
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-2-1.png" width="50%" /&gt;
+
+- Bradley focuses exclusively on younger patients.
+
+- Women and Infants also has lots of young patients and newborns.
+
+- Hasbro (`Campus 4`) also focuses mainly on treating children.
+
+---
+# Sex by Hospital
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-3-1.png" width="50%" /&gt;
+ 
+- Women and Infants focuses mainly on women
+
+- All other hospitals are split mostly 50/50
+
+---
+# Admittance by Hospital
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-4-1.png" width="50%" /&gt;
+
+- Bradley and Butler have lots of urgent
+
+- Maybe because Bradley and Butler are psychiatric hospitals
+
+- Women and Infants has lots of newborns
+
+---
+# ICU Length by Hospital
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-5-1.png" width="50%" /&gt;
+
+- Longest intensive care stays in Kent County hospital
+
+- Maybe they are better equipped for these specific needs
+
+---
+# Why do patients stay for a long time?
+
+- Age? 
+
+- Race / ethnicity?
+
+- Impact of Hospital?
+
+---
+# Length of Stay by Age &amp; Race / Ethnicity?
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-6-1.png" width="50%" /&gt;
+
+- No obvious patterns to race
+
+- Most lengths shorter than 75 days, a few longer term stays
+
+- Older patients are more short-term, no other obvious patterns
+
+
+---
+# Length of Stay by Hospital
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-7-1.png" width="50%" /&gt;
+
+- Used log(length of stay) to help with visuals
+
+- Bradley and Butler longer stays (psych hospitals again)
+
+- South County &amp; Women and Infants are the shortest lengths
+
+---
+# What impacts birth weight?
+
+- Hospital of birth?
+
+- Month?
+
+- Race / ethnicity?
+
+- Sex?
+
+---
+# Weight of baby by Hospital and Month
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-8-1.png" width="50%" /&gt;
+
+- No monthly pattern to weights
+
+- Babies born at Women and Infants are smaller
+
+- Maybe Women and Infants has more resources for premature babies
+
+---
+# Birthweight by sex and race
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-9-1.png" width="50%" /&gt;
+
+- No significant differences by race or sex
+
+---
+# Why are hospital bills so expensive?
+
+- Distribution of total bill?
+
+- Age?
+
+- Reason for admittance?
+
+- Hospital?
+
+---
+# Distribution of Total Cost
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-10-1.png" width="50%" /&gt;
+
+- Right skewed (some very large bills)
+
+- Most bills under ~$35,000
+
+---
+# Average Cost by Hospital by Age
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-11-1.png" width="50%" /&gt;
+
+- Bradley most expensive, RI Hospital second most
+
+- Middle-aged patients typically pay more (based on parabolic curve)
+
+- Butler is actually cheaper for middle-aged patients
+
+---
+# Average Cost by Admittance Type
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-12-1.png" width="50%" /&gt;
+
+- Trauma costs more
+
+- Newborns cost less
+---
+# Average Cost per Day by Admittance Type
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-13-1.png" width="50%" /&gt;
+
+- Newborn visits cost much less than average on a per day basis
+
+- Trauma costs now more in-line with other reasons
+
+- Maybe trauma care itself isn't too expensive, just long time in hospital
+
+---
+# Average Cost Per Day by Hospital
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-14-1.png" width="50%" /&gt;
+
+- Used log transformation to handle right skew
+
+- Bradley and Butler cost much less per day
+
+---
+# Average Cost Per Day by Hospital
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-15-1.png" width="50%" /&gt;
+
+- St. Josephs and Women and Infants slightly cheaper per day
+
+- This may be caused by many W&amp;I patients having the reason as newborn
+
+- Rest of hospitals have similar cost distributions
+
+---
+# Revealing Line Graph
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-16-1.gif" width="50%" /&gt;
+
+- Rhode Island Hospital consistently receives the most revenue
+
+- No apparent pattern to cash flow (no dramatic seasonal changes)
+
+---
+# Animated Bar Race
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-17-1.gif" width="50%" /&gt;
+
+- Ran plot without W&amp; I; always have most births (~750 per month)
+
+- Kent County usually more than South County (except Feb and March)
+
+- Maybe babies born here if mothers are not located close to Providence
+
+---
+class: inverse, middle, center
+# Predicitive Modeling Section
+
+---
+# Model for High Cost
+
+
+```
+## 123456789101112131415161718192021222324252627282930111111
+```
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-18-1.png" width="42%" /&gt;
+
+- Predicting High Cost in 3 methods
+
+- Ranger method looks best
+
+- Need to further examine which hyper parameters to use
+
+---
+# Final Model Decision and Accuracy
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-19-1.png" width="50%" /&gt;
+
+- Gini splits, 5 variables to choose, min node = 9
+
+- Accuracy = 84.06%
+
+---
+# My Model of Choice
+
+- Similar idea, binary test
+
+- Want to examine what determines if length of stay is greater than median
+
+- Median is 3 days
+
+- Check if these models agree with graphs 
+
+---
+# Decision Tree
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-20-1.png" width="50%" /&gt;
+
+- First split is admittance type: emergency, unknown, trauma, and other lead to long stays
+
+- Next split is hospital treating the patient
+
+---
+# Variable Importance
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-21-1.png" width="42%" /&gt;
+
+- Most important variable is reason for admittance (1st split)
+
+- Next most important are provider (and campus) and age, this agrees with charts earlier
+
+- Race plays a very small role, rest of variables have no impact
+
+---
+# Hyperparameter Selection in Ranger
+
+
+```
+## 123456789101112131415161718192021222324252627282930111111
+```
+
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-22-1.png" width="50%" /&gt;
+
+- Gini split better than extra trees again (but not by as much as before)
+
+- 5 variable predictors at each step, minimum node size = 8
+
+---
+# Model Comparison
+&lt;img src="AAAA_PresMidterm_files/figure-html/unnamed-chunk-23-1.png" width="50%" /&gt;
+
+- Random forest (`ranger`) is the best model again
+
+- Testing accuracy of 65.51%
+
+---
+class: inverse, middle, center
+# Errors/ Issues
+
+---
+# Errors / Issues
+
+--
+
+- interpretability
+
+    - used Google doc to connect variable codes to name (provider, sex, reason for admittance)
+    
+--
+
+- large data set
+
+    - used a random sample for some of the modeling as needed
+
+--
+
+- skewness
+
+    - used log(length of stay) and log(total cost) on some graphs
+
+--
+
+- When creating the PowerPoint, I could not properly download xaringanExtra to use fit to screen
+
+    - Sized images to 50% using alternative method
+
+
+---
+class: inverse, middle, center
+# Thank You!
+### Any Questions?
+##### November 11, 2021
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
