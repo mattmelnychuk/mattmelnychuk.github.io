@@ -39,3 +39,7 @@
 [Midterm HTML](AAAA_Midterm.html)
 
 [Midterm Presentation](AAAA_PresMidterm.html)
+
+## Second Half
+
+#### TBD

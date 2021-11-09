@@ -244,6 +244,7 @@ df2 %>% ggplot()+
   geom_boxplot(mapping = aes(y = age, color = hospital))+
     labs(title = 'Age by Hospital', x='', y='Age', fill='Hospital', caption = 'Bradley and W&I much younger.')
 ```
+
 Bradley and Women and Infants hospitals both seem to have patients that are much younger than average - for Women and Infants this is not a surprise since they have lots of newborn patients.  The average age of patients in Butler hospital is also lower than typical at around 43 instead of being around 60.
 
 #### Sex by Hospital (2):
@@ -252,6 +253,7 @@ df2 %>% ggplot()+geom_bar(mapping=aes(x=hospital, fill=SEX2),
            position = 'fill')+
     labs(title = 'Sex by Hospital', x='', y='Proportion', fill='Sex', caption = 'W&I 75% female')
 ```
+
 About 75% of the patients at Women and Infants are female, while most of the other hospitals are close to a 50/50 split.
 
 #### Age by Campus (3):
@@ -261,6 +263,7 @@ df2 %>% ggplot()+
   geom_boxplot(mapping = aes(y = age, color = campus))+
     labs(title = 'Age by Campus', x='Campus 4 = Hasbro', y='Age', fill='Campus', caption = 'Hasbro is a childrens hospital')
 ```
+
 Most hospitals only have one campus (indicated by campus = 0), but it was interesting to note that campus 4 (Hasbro) has much younger patients. This makes sense because Hasbro is a Children's hospital and does not treat older patients (the eldest patient appears to be about 25 years old or so).
 
 #### Type of Admittance by Hospital (4):
@@ -268,6 +271,7 @@ Most hospitals only have one campus (indicated by campus = 0), but it was intere
 df2 %>% ggplot()+geom_bar(mapping=aes(x=hospital, fill=Admit2),position = 'fill')+
     labs(title = 'Admittance Reason by Hospital', x='', y='Proportion', fill='Hospital', caption = 'Bradley and Butler more urgent than emergency')
 ```
+
 Bradley and Butler both seem to have many more patients designated as *urgent* than *emergency*, which may have something to do with the fact that those two hospitals tend to focus on psychiatric needs and mental health. The only other hospital to note is Women and Infants which has a large proportion of newborns for their patients and very few emergencies.
 
 #### Total ICU Days by Hospital (5):
@@ -278,6 +282,7 @@ df2$icu <- as.numeric(df2$icu/100)
 df2 %>% ggplot()+
   geom_boxplot(mapping = aes(y = icu, color = hospital)) + labs(title = 'ICU stays by hospital', x='', y='Days', fill='Hospital', caption = 'Kent County has long ICU stays.')
 ```
+
 It seems that the Kent County Hospital has the longest icu stays for patients. Perhaps the hospital is better equipped to help patients that need intensive care than other Rhode Island hospitals.
 
 ### What makes patients stay longer?
@@ -287,6 +292,7 @@ It seems that the Kent County Hospital has the longest icu stays for patients. P
 df2 %>% ggplot()+
   geom_density(mapping = aes(x = los)) + labs(title = 'Distribution of Length of Stay', x='Days', y='Proportion', caption = 'Largely right-skewed')
 ```
+
 Most stays are for only a few days, but there are a few patients who stayed in the hospital for a very long time.
 
 #### Impact of Race and Age on Length of Stay (7):
@@ -294,6 +300,7 @@ Most stays are for only a few days, but there are a few patients who stayed in t
 df2  %>% ggplot()+
   geom_point(mapping = aes(x = age, y = los, color = RE2)) + labs(title = 'Length of Stay by race and age', x='Age', y='Length of Stay', caption = 'No patterns immediately noticeable')
 ```
+
 There does not appear to be much of an impact from either age or race and ethnicity on length of stay.
 
 #### Cost by Length of Stay by Sex (8):
@@ -301,6 +308,7 @@ There does not appear to be much of an impact from either age or race and ethnic
 df2  %>% ggplot()+
   geom_point(mapping = aes(x = los, y = tot, color = SEX2)) + labs(title = 'Cost by Length of Stay by Sex', x='Length of Stay', y='Total Cost', fill='Sex', caption = 'Longer stays lead to more expensive bills.')
 ```
+
 Longer stays are more expensive (somewhat of an obvious conclusion).  It also appears that men and women pay around the same amount for a given length of stay and that men and women stay in the hospital for similar lengths of time.
 
 #### Length of Stay by Hospital (9):
@@ -326,6 +334,7 @@ Bradley and Butler have longer stays on average compared to other hospitals (eve
 df2$b_wt <- as.numeric(df2$b_wt)
 df2 %>%  filter(b_wt>0) %>%  filter(Admit2 =='Newborn')%>% ggplot() + geom_smooth(mapping=aes(x=moa, y=b_wt)) + facet_wrap(vars(hospital)) + labs(title = 'Newborn Weight by Month by Hospital', x='Month', y='Weight (g)', caption = 'Smaller babies at W&I.')
 ```
+
 Most babies are born with a weight of around 335g, but babies at Women and Infants are significantly smaller on average (and babies born at South County hospital are larger).  There does not appear to be any pattern to babies being heavier or lighter in any given month.
 
 #### Birth weight by race and sex (11):
@@ -333,6 +342,7 @@ Most babies are born with a weight of around 335g, but babies at Women and Infan
 df2 %>%  filter(b_wt>0) %>% filter(SEX2 !='Unknown') %>% ggplot()+
   geom_boxplot(mapping = aes(x=SEX2, y = b_wt, color = RE2)) + labs(title = 'Birth Weight by Race', x='Sex', y='Weight (g)', fill='Race/Ethnicity', caption = 'No significant difference in weight by race or sex.')
 ```
+
 Race and sex have little impact on a baby's birth weight according to the graph.
 
 ### Which hospitals cost the most?
@@ -342,18 +352,21 @@ Race and sex have little impact on a baby's birth weight according to the graph.
 df2 %>% filter (tot <=200000) %>% ggplot()+
   geom_histogram(binwidth = 1000, mapping = aes(x = tot)) + labs(title = 'Histogram of Hospital Bills', x='Cost', y='Count', caption = 'Mostly lower bills, some right skew.')
 ```
+
 Some excessively large bills were omitted so that the graph would better display the results. Most bills fall under $35,000 or so, but some bills are very large, leading to a right skew in the histogram.
 
 #### Average Cost by Hospital (13):
 ```{r}
 df2 %>% ggplot()+geom_smooth(mapping = aes(x = age, y = tot, color = hospital)) + labs(title = 'Average Cost by Hospital by Age', x='Age', y='Cost', caption = 'Bradley is the most expensive.')
 ```
+
 Bradley is the most expensive hospital by a large margin, and the next most expensive provider is Rhode Island Hospital. It seems like middle-aged people typically pay more than either younger or older patients based on the mostly parabolic curves (Butler follows the opposite pattern).
 
 #### Cost per patient by los (raceethn) (14):
 ```{r}
 df2 %>% ggplot()+geom_smooth(mapping = aes(x = los, y = tot, color = RE2)) + labs(title = 'Average Cost by Race/Ethnicity by Length of Stay', x='Length of Stay', y='Cost', caption = 'Bradley is the most expensive.')
 ```
+
 In general, it does not appear that race has an impact on total cost - at least through the first 100 or so days - since the lines are mostly overlapping. After 100 days, the lines start to separate so patients who identified as Hispanic or whose race/ethnicity was unknown typically pay more than patients who are white, black, or other.  This may be due to having less data points for patients who stay for longer periods of time.  Also, unsurprisingly, total cost increases as length of stay increases in general.
 
 #### Cost per day by hospital (15):
@@ -377,18 +390,21 @@ df2$lncpd <- log(df2$costperday)
 df2 %>% filter(costperday>0) %>% filter(hospital !='Bradley') %>% filter(hospital !='Butler') %>%ggplot()+
   geom_density(mapping = aes(x = lncpd, color = hospital)) + labs(title = 'Natural Log of Cost per day by Hospital', x='ln(costperday)', y='Density', fill='Hospital', caption = 'St. J and W&I are slightly cheaper per day.')
 ```
+
 Originally, the scale made it difficult to interpret this graph. Next, Bradley and Butler were removed because they also made the graph difficult to interpret since they charge much less per day than other hospitals. Finally, it appears that St. Josephs and Women and Infants charge slightly less per day than other providers in Rhode Island.
 
 #### Cost by admittance type (16):
 ```{r}
 df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(tot), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'Trauma costs more on average.')
 ```
+
 Trauma costs more on average than any of the other reasons for admition to the hospital. Also, newborns are cheaper than any other reason for visiting the hospital.
 
 #### Cost per day by Admittance type (16B):
 ```{r}
 df2  %>% filter(Admit2 != '') %>% filter(Admit2 != 'Unknown') %>% ggplot()+ geom_boxplot(mapping = aes(y = log(costperday), color = Admit2)) + labs(title = 'Cost by Admittance Type', y='Log of Cost', fill='Admittance Type', caption = 'Newborns much cheaper per day.')
 ```
+
 Newborns cost much less per day than any other reason for visiting the hospital. Trauma now appears to be in line with other reasons for visiting when looking at cost per day instead of just total cost, which means that trauma patients may just be in the hospital for longer periods of time.
 
 2. Make an animation plot. 
@@ -409,6 +425,7 @@ df2 %>%  group_by(hospital, moa) %>% summarise(TotalCost = sum(tot)) %>%
        caption = 'RI Hospital receives the most $')
 
 ```
+
 Rhode Island Hospital always receives the most revenue in a given month.  Also, it appears that the revenue is mostly consistent for hospitals, meaning there is no large annual pattern.
 
 ### Animated Bar Race - Births by Hospital (18):
@@ -427,6 +444,7 @@ a1 <- d2 %>% ggplot(aes(x=rank, y=births, group=hospital, fill=hospital, label=h
 library(gifski)
 animate(a1, renderer = gifski_renderer())
 ```
+
 Women and Infants consistently has the most births.  I will run this same graphic again without that hospital since it throws off the scale so much.
 
 ```{r, warning=FALSE}
@@ -444,6 +462,7 @@ a1 <- d2 %>% ggplot(aes(x=rank, y=births, group=hospital, fill=hospital, label=h
 library(gifski)
 animate(a1, renderer = gifski_renderer())
 ```
+
 There are four other hospitals in Rhode Island where babies were born during 2018.  Kent County Hospital normally has more births than South County Hospital, but they do briefly change rank in February and March.  It is possible that babies are born in these other hospitals because the mothers may be located far away from Providence and choose to go to a closer hospital instead.
 
 3. Write a paragraph to summarize the section and give your comments on the results. 
