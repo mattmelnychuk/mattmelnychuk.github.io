@@ -164,11 +164,11 @@ df2 %>% ggplot()+
 - Maybe they are better equipped for these specific needs
 
 ---
-# Why do patients stay for a long time?
+# Why Do Patients Stay for a Long Time?
 
 - Age? 
 
-- Race / ethnicity?
+- Race / Ethnicity?
 
 - Impact of Hospital?
 
@@ -202,18 +202,18 @@ df2  %>% ggplot()+
 - South County & Women and Infants are the shortest lengths
 
 ---
-# What impacts birth weight?
+# What Impacts Birth Weight?
 
-- Hospital of birth?
+- Hospital of Birth?
 
 - Month?
 
-- Race / ethnicity?
+- Race / Ethnicity?
 
 - Sex?
 
 ---
-# Weight of baby by Hospital and Month
+# Weight of Baby by Hospital and Month
 ```{r, echo=FALSE, out.width = "50%"}
 df2$b_wt <- as.numeric(df2$b_wt)
 df2 %>%  filter(b_wt>0) %>%  filter(Admit2 =='Newborn')%>% ggplot() + geom_smooth(mapping=aes(x=moa, y=b_wt)) + facet_wrap(vars(hospital)) + labs(title = 'Newborn Weight by Month by Hospital', x='Month', y='Weight (g)', caption = 'Smaller babies at W&I.')
@@ -226,7 +226,7 @@ df2 %>%  filter(b_wt>0) %>%  filter(Admit2 =='Newborn')%>% ggplot() + geom_smoot
 - Maybe Women and Infants has more resources for premature babies
 
 ---
-# Birthweight by sex and race
+# Birthweight by Sex and Race
 ```{r, echo=FALSE, out.width = "50%"}
 df2 %>%  filter(b_wt>0) %>% filter(SEX2 !='Unknown') %>% ggplot()+
   geom_boxplot(mapping = aes(x=SEX2, y = b_wt, color = RE2)) + labs(title = 'Birth Weight by Race', x='Sex', y='Weight (g)', fill='Race/Ethnicity', caption = 'No significant difference in weight by race or sex.')
@@ -235,7 +235,7 @@ df2 %>%  filter(b_wt>0) %>% filter(SEX2 !='Unknown') %>% ggplot()+
 - No significant differences by race or sex
 
 ---
-# Why are hospital bills so expensive?
+# Why are Hospital Bills so Expensive?
 
 - Distribution of total bill?
 
@@ -366,7 +366,7 @@ animate(a1, renderer = gifski_renderer())
 
 ---
 class: inverse, middle, center
-# Predicitive Modeling Section
+# Predictive Modeling Section
 
 ---
 # Model for High Cost
@@ -576,27 +576,27 @@ class: inverse, middle, center
 
 --
 
-- interpretability
+- Interpretability
 
-    - used Google doc to connect variable codes to name (provider, sex, reason for admittance)
+    - Used Google doc to connect variable codes to name (provider, sex, reason for admittance)
     
 --
 
-- large data set
+- Large Data Set
 
-    - used a random sample for some of the modeling as needed
+    - Used a random sample for some of the modeling as needed
 
 --
 
-- skewness
+- Skewness
 
-    - used log(length of stay) and log(total cost) on some graphs
+    - Used log(length of stay) and log(total cost) on some graphs
 
 --
 
 - When creating the PowerPoint, I could not properly download xaringanExtra to use fit to screen
 
-    - Sized images to 50% using alternative method
+    - Sized images to 50% using an alternative method
 
 
 ---
