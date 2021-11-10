@@ -40,6 +40,6 @@
 
 [Midterm Presentation](AAAA_PresMidterm.html)
 
-## Second Half
+## Second Half of Course
 
 #### TBD
