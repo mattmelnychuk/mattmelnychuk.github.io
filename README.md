@@ -48,4 +48,6 @@
 
 [Assignment 13: Text Mining](Assignment13.html)
 
-#### TBD
+[Text Prediction 2: Fake Jobs](TextJobs.html)
+
+TBD

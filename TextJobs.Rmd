@@ -1,0 +1,66 @@
+---
+title: "More Text Predictive Modeling"
+author: "Matthew Melnychuk"
+date: "11/17/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I downloaded data from Kaggle, then modified to get equal number of fraudulent and real postings. I used a random number in excel to then keep only a portion of the true jobs. Finally, I deleted the columns that are not used in the prediction model (all except for fraudulent and description columns).
+
+```{r, warning = FALSE}
+library(tidyverse)
+df<- read_csv("C:/Users/student/Desktop/R 421/fake_job_postings.csv")
+
+df$fraudulent <- case_when(
+  df$fraudulent ==1 ~ 'FAKE',
+  TRUE ~ 'REAL JOB')
+
+library(caret)
+library(themis)
+library(textrecipes)
+
+# Select data and set target 
+df2 <- df %>% 
+  mutate(target = fraudulent) %>% 
+  select(target, description) 
+
+df2$target <- as.factor(df2$target)
+# Convert text data to numeric variables
+a <- recipe(target~description,
+       data = df2) %>% 
+  step_tokenize(description) %>% 
+  step_tokenfilter(description, max_tokens = 35) %>% 
+  step_tfidf(description) %>% 
+  step_normalize(all_numeric_predictors()) %>% 
+  step_smote(target) %>% 
+  prep()
+df2 <- juice(a)
+
+# Using Caret for modeling
+set.seed(2020)
+splitIndex <- createDataPartition(df2$target, p = .7, 
+                                  list = FALSE)
+df_train <- df2[ splitIndex,]
+df_test <- df2[-splitIndex,]
+
+forest_ranger <- train(target~., data=df_train, 
+                        method = "ranger")
+
+pred <- predict(forest_ranger, df_test)
+
+cm <- confusionMatrix(data = pred, reference = df_test$target)
+cm$overall[1]
+
+```
+81.1% accurate when using 35 tokens
+
+```{r}
+d = data.frame(pred = pred, obs = df_test$target)
+library(yardstick)
+d %>% conf_mat(pred, obs) %>% autoplot
+```
+
