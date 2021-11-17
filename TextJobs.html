@@ -172,7 +172,8 @@ pre code {
 </div>
 
 
-<p>I downloaded data from Kaggle, then modified to get equal number of fraudulent and real postings. I used a random number in excel to then keep only a portion of the true jobs. Finally, I deleted the columns that are not used in the prediction model (all except for fraudulent and description columns).</p>
+<p><a href="https://www.kaggle.com/shivamb/real-or-fake-fake-jobposting-prediction" class="uri">https://www.kaggle.com/shivamb/real-or-fake-fake-jobposting-prediction</a></p>
+<p>I downloaded data from Kaggle (link above) then modified to get equal number of fraudulent and real postings. I used a random number in excel to then keep only a portion of the true jobs. Finally, I deleted the columns that are not used in the prediction model (all except for fraudulent and description columns).</p>
 <pre class="r"><code>library(tidyverse)</code></pre>
 <pre><code>## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --</code></pre>
 <pre><code>## v ggplot2 3.3.5     v purrr   0.3.4
@@ -182,18 +183,7 @@ pre code {
 <pre><code>## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
 ## x dplyr::filter() masks stats::filter()
 ## x dplyr::lag()    masks stats::lag()</code></pre>
-<pre class="r"><code>df&lt;- read_csv(&quot;C:/Users/student/Desktop/R 421/fake_job_postings.csv&quot;)</code></pre>
-<pre><code>## 
-## -- Column specification --------------------------------------------------------
-## cols(
-##   description = col_character(),
-##   fraudulent = col_double()
-## )</code></pre>
-<pre class="r"><code>df$fraudulent &lt;- case_when(
-  df$fraudulent ==1 ~ &#39;FAKE&#39;,
-  TRUE ~ &#39;REAL JOB&#39;)
-
-library(caret)</code></pre>
+<pre class="r"><code>library(caret)</code></pre>
 <pre><code>## Loading required package: lattice</code></pre>
 <pre><code>## 
 ## Attaching package: &#39;caret&#39;</code></pre>
@@ -225,7 +215,17 @@ library(caret)</code></pre>
 <pre><code>## The following objects are masked from &#39;package:recipes&#39;:
 ## 
 ##     step_downsample, step_upsample</code></pre>
-<pre class="r"><code>library(textrecipes)
+<pre class="r"><code>library(textrecipes)</code></pre>
+<pre class="r"><code>df&lt;- read_csv(&quot;C:/Users/student/Desktop/R 421/fake_job_postings.csv&quot;)</code></pre>
+<pre><code>## 
+## -- Column specification --------------------------------------------------------
+## cols(
+##   description = col_character(),
+##   fraudulent = col_double()
+## )</code></pre>
+<pre class="r"><code>df$fraudulent &lt;- case_when(
+  df$fraudulent ==1 ~ &#39;FAKE&#39;,
+  TRUE ~ &#39;REAL JOB&#39;)
 
 # Select data and set target 
 df2 &lt;- df %&gt;% 

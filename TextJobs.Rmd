@@ -9,19 +9,24 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-I downloaded data from Kaggle, then modified to get equal number of fraudulent and real postings. I used a random number in excel to then keep only a portion of the true jobs. Finally, I deleted the columns that are not used in the prediction model (all except for fraudulent and description columns).
+https://www.kaggle.com/shivamb/real-or-fake-fake-jobposting-prediction
+
+I downloaded data from Kaggle (link above) then modified to get equal number of fraudulent and real postings. I used a random number in excel to then keep only a portion of the true jobs. Finally, I deleted the columns that are not used in the prediction model (all except for fraudulent and description columns).
 
 ```{r, warning = FALSE}
 library(tidyverse)
+library(caret)
+library(themis)
+library(textrecipes)
+```
+
+
+```{r, warning = FALSE}
 df<- read_csv("C:/Users/student/Desktop/R 421/fake_job_postings.csv")
 
 df$fraudulent <- case_when(
   df$fraudulent ==1 ~ 'FAKE',
   TRUE ~ 'REAL JOB')
-
-library(caret)
-library(themis)
-library(textrecipes)
 
 # Select data and set target 
 df2 <- df %>% 
