@@ -44,10 +44,14 @@
 
 [Midterm Presentation](AAAA_PresMidterm.html)
 
-## Second Half of Course
+## Text/Twitter Mining
 
 [Assignment 13: Text Mining](Assignment13.html)
 
 [Text Prediction: Fake Jobs](TextJobs.html)
 
-TBD
+[Assignment 14: Twitter Mining](Assignment14.html)
+
+## Final: R Shiny Apps
+
+[TBD]

@@ -1,0 +1,412 @@
+
+---
+output: 
+  html_document:
+  pdf_document: default
+  word_document: default
+title: "Assignment 14: Twitter Mining with rtweet"
+---
+
+***Assignment***: 
+
+
+Pick a keyword or hashtag. Plot at least 10 plots to visualize the data associated with the keyword/hashtag. All plots should have titles and captions.
+
+```{r}
+library(rtweet) 
+library(tidytext)
+library(ggpubr) 
+library(tidyverse) 
+library(knitr)
+library(lubridate)
+library(openxlsx)
+```
+
+```{r}
+#Commenting this out becuase it wouldn't knit
+
+#keyword_search = '#steelers'
+
+#dfTWEET <- search_tweets(q = keyword_search, 
+                        #n = 18000,
+                        #include_rts = FALSE,
+                        #`-filter` = "replies",
+                        #lang = "en") %>% 
+  #mutate(created_at = ymd_hms(format(created_at, tz = "US/Eastern")))
+
+#write.xlsx(dfTWEET,'twitter_data.xlsx')
+#need to comment this out because file already exists
+```
+
+```{r}
+df <- read.xlsx('twitter_data.xlsx')
+```
+
+```{r}
+#1 Frequency
+df %>% 
+  unnest_tokens(output = hashtag, input = text, token = "tweets") %>%
+  filter(!hashtag %in% c("#steelers"), str_detect(hashtag, "^#")) %>% 
+  count(hashtag, sort = TRUE) %>%
+  head(10) 
+```
+```{r}
+#1 Frequency
+df %>% 
+  unnest_tokens(output = hashtag, input = text, token = "tweets") %>%
+  filter(!hashtag %in% c("#steelers"), str_detect(hashtag, "^#")) %>%
+  count(hashtag, sort = TRUE) %>%
+  head(5) %>% 
+  ggplot(aes(x = n, y = reorder(hashtag, n)))+
+  geom_col() + 
+    labs(title = 'Hashtag Frequency', x='Frequency', y='', caption = '#herewego is most frequent')
+```
+
+
+
+```{r, error=TRUE}
+#2 Cloud
+library(RColorBrewer)
+
+pal <- brewer.pal(8,"Dark2")
+library(wordcloud) 
+
+df %>% 
+  unnest_tokens(output = hashtag, input = text, token = "tweets") %>%
+  filter(!hashtag %in% c("#steelers"), str_detect(hashtag, "^#")) %>%
+  count(hashtag, sort = TRUE) %>%
+  mutate(hashtag = str_remove(hashtag, '#')) %>% 
+  with(wordcloud(hashtag, n, random.order = FALSE, max.words = 50, colors = pal)) + 
+    labs(title = 'Hashtag Cloud', caption = 'nfl, lions, and chargers are frequent')
+```
+
+```{r}
+#3 Screen Name
+
+df %>% 
+  count(screen_name, sort = TRUE) %>%
+  head(10) %>% 
+  ggplot(aes(x = n, y = reorder(screen_name, n)))+
+  geom_col()+
+  labs(x = 'Frequency', y = '') + 
+    labs(title = 'Users', x='Frequency', y='', caption = 'Steelersdepot posts the most')
+```
+
+```{r}
+#4 Source
+
+df %>% 
+  count(source, sort = TRUE) %>%
+  head(6) %>% 
+  ggplot(aes(x = n, y = reorder(source, n)))+
+  geom_col()+
+    labs(title = 'Source', x='Frequency', y='', caption = 'iPhones post the most')
+```
+
+```{r}
+#5 Country
+
+df %>% 
+  filter(!is.na(country)) %>% 
+  count(country, sort = TRUE) %>%
+  head(6) %>% 
+  ggplot(aes(x = n, y = reorder(country, n)))+
+  geom_col()+ 
+    labs(title = 'Country', x='Frequency', y='', caption = 'Most are from United States')
+```
+
+```{r}
+#6 Location
+
+df %>% 
+  filter(!is.na(location), !location=='') %>% 
+  count(location, sort = TRUE) %>%
+  head(15) %>% 
+  ggplot(aes(x = n, y = reorder(location, n)))+
+  geom_col()+ 
+    labs(title = 'Location', x='Frequency', y='', caption = 'Lots of tweets from Pittsburgh area')
+
+
+```
+
+```{r}
+#7 Tweets
+
+df %>% 
+  unnest_tokens(output = word, input = text, token = "words") %>%
+  anti_join(get_stopwords()) %>% 
+  filter(!word %in% c('https', 't.co')) %>% 
+  count(word, sort = TRUE) %>%
+  head(5) %>% 
+  ggplot(aes(x = n, y = reorder(word, n)))+
+  geom_col()+ 
+    labs(title = 'Word Frequency', x='Frequency', y='', caption = 'Unsurprisingly, steelers is most frequent word')
+
+```
+
+```{r, error=TRUE}
+#8
+words <- df %>%
+  mutate(text = str_remove_all(text, "&amp;|&lt;|&gt;"),
+         text = str_remove_all(text, "\\s?(f|ht)(tp)(s?)(://)([^\\.]*)[\\.|/](\\S*)"),
+         text = str_remove_all(text, "[^\x01-\x7F]")) %>% 
+  unnest_tokens(word, text, token = "tweets") %>%
+  filter(!word %in% stop_words$word,
+        !word %in% str_remove_all(stop_words$word, "'"),
+        str_detect(word, "[a-z]"),
+        !str_detect(word, "^#"),         
+        !str_detect(word, "@\\S+")) %>%
+  count(word, sort = TRUE)
+
+library(wordcloud) 
+al <- brewer.pal(8,"Dark2")
+
+words %>% 
+  with(wordcloud(word, n, random.order = FALSE, max.words = 50, colors = pal)) + 
+    labs(title = 'Word Cloud', caption = 'Roethlisberger is most popular, but too big for cloud')
+
+```
+
+```{r}
+#9 Timeline
+
+#ts_plot(dfTWEET, "hours") +
+  #theme_minimal() + 
+    #labs(title = 'Timeline', x='Date', y='Frequency', caption = 'Peaks on gamedays')
+```
+
+```{r}
+#10 Sentiment Analysis
+
+df %>%
+    unnest_tokens(input = text, output = word) %>% 
+    anti_join(get_stopwords()) %>% 
+    count(word, sort = TRUE) %>%
+    inner_join(get_sentiments("nrc")) %>%
+    filter(!is.na(sentiment)) %>%
+    count(sentiment, sort = TRUE) %>% 
+    mutate(n = n/sum(n)) %>% 
+    ggplot(aes(y= reorder(sentiment, n), x = n))+geom_col()+ 
+    labs(title = 'Sentiment Analysis', x='Frequency', y='', caption = 'Many negative tweets')
+
+```
+
+```{r}
+#11 Positive or Negative
+df %>%
+    unnest_tokens(input = text, output = word) %>% 
+    anti_join(get_stopwords()) %>% 
+    count(word, sort = TRUE) %>%
+    inner_join(get_sentiments("bing")) %>%
+    filter(!is.na(sentiment)) %>%
+    count(sentiment, sort = TRUE) %>% 
+    mutate(n = n/sum(n)) %>% 
+    ggplot(aes(y= reorder(sentiment, n), x = n))+geom_col()+ 
+    labs(title = 'Positive or Negative', x='Frequency', y='', caption = 'Much more negative than positive')
+```
+
+```{r}
+#12 Numeric Sentiment
+df %>%
+    unnest_tokens(input = text, output = word) %>% 
+    anti_join(get_stopwords()) %>% 
+    count(word, sort = TRUE) %>%
+    inner_join(get_sentiments("afinn")) %>%
+    filter(!is.na(value)) %>%
+    count(value, wt = n, sort = TRUE) %>% 
+    ggplot(aes(x= value, y = n))+geom_col()+ 
+    labs(title = 'Numeric Sentiment', x='Sentiment', y='Frequency', caption = 'Fairly even split')
+
+```
+
+Choose a location then pick a trending keyword/hashtag in the location. Plot at least 10 plots to visualize the data associated with the keyword/hashtag. All plots should have titles and captions.
+
+```{r}
+# Had to change all twitter scraping to comments becuase rmarkdown would not knit
+
+#trends_available()
+#df <- get_trends('Orlando')
+#df
+```
+
+```{r}
+#Commenting so that it will knit
+
+#keyword_search = '#GivingTuesday'
+
+#dfTWEET2 <- search_tweets(q = keyword_search, 
+                        #n = 18000,
+                        #include_rts = FALSE,
+                        #`-filter` = "replies",
+                        #lang = "en") %>% 
+  #mutate(created_at = ymd_hms(format(created_at, tz = "US/Eastern")))
+
+#write.xlsx(dfTWEET2,'twitter_data2.xlsx')
+#need to comment this out because file already exists
+```
+
+```{r}
+df <- read.xlsx('twitter_data2.xlsx')
+```
+
+```{r}
+#1 Frequency
+df %>% 
+  unnest_tokens(output = hashtag, input = text, token = "tweets") %>%
+  filter(!hashtag %in% c("#GivingTuesday"), str_detect(hashtag, "^#")) %>%
+  count(hashtag, sort = TRUE) %>%
+  head(10) %>% 
+  ggplot(aes(x = n, y = reorder(hashtag, n)))+
+  geom_col()+ 
+    labs(title = 'Hashtag Frequency', x='Frequency', y='', caption = '#givingtuesday is most frequent')
+```
+
+```{r, error=TRUE}
+#2 Cloud
+library(RColorBrewer)
+
+pal <- brewer.pal(8,"Dark2")
+library(wordcloud) 
+
+df %>% 
+  unnest_tokens(output = hashtag, input = text, token = "tweets") %>%
+  filter(!hashtag %in% c("#GivingTuesday"), str_detect(hashtag, "^#")) %>%
+  count(hashtag, sort = TRUE) %>%
+  mutate(hashtag = str_remove(hashtag, '#')) %>% 
+  with(wordcloud(hashtag, n, random.order = FALSE, max.words = 50, colors = pal))+ 
+    labs(title = 'Hashtag Cloud', caption = 'givingtuesday is most frequent by far')
+```
+
+```{r}
+#3 Screen Name
+
+df %>% 
+  count(screen_name, sort = TRUE) %>%
+  head(10) %>% 
+  ggplot(aes(x = n, y = reorder(screen_name, n)))+
+  geom_col()+ 
+    labs(title = 'Users', x='Frequency', y='', caption = 'GivingTuesday posts the most')
+```
+
+```{r}
+#4 Source
+
+df %>% 
+  count(source, sort = TRUE) %>%
+  head(8) %>% 
+  ggplot(aes(x = n, y = reorder(source, n)))+
+  geom_col()+
+    labs(title = 'Source', x='Frequency', y='', caption = 'Web App post the most')
+```
+
+```{r}
+#5 Country
+
+df %>% 
+  filter(!is.na(country)) %>% 
+  count(country, sort = TRUE) %>%
+  head(8) %>% 
+  ggplot(aes(x = n, y = reorder(country, n)))+
+  geom_col()+ 
+    labs(title = 'Country', x='Frequency', y='', caption = 'Most are from United States')
+```
+
+```{r}
+#6 Location
+
+df %>% 
+  filter(!is.na(location), !location=='') %>% 
+  count(location, sort = TRUE) %>%
+  head(20) %>% 
+  ggplot(aes(x = n, y = reorder(location, n)))+
+  geom_col()+ 
+    labs(title = 'Location', x='Frequency', y='', caption = 'Lots of tweets from DC, Chicago & NY areas')
+```
+
+```{r}
+#7 Tweets
+
+df %>% 
+  unnest_tokens(output = word, input = text, token = "words") %>%
+  anti_join(get_stopwords()) %>% 
+  filter(!word %in% c('https', 't.co')) %>% 
+  count(word, sort = TRUE) %>%
+  head(15) %>% 
+  ggplot(aes(x = n, y = reorder(word, n)))+
+  geom_col()+ 
+    labs(title = 'Word Frequency', x='Frequency', y='', caption = 'Unsurprisingly, givingtuesday is most frequent word')
+```
+
+```{r, error=TRUE}
+#8
+words <- df %>%
+  mutate(text = str_remove_all(text, "&amp;|&lt;|&gt;"),
+         text = str_remove_all(text, "\\s?(f|ht)(tp)(s?)(://)([^\\.]*)[\\.|/](\\S*)"),
+         text = str_remove_all(text, "[^\x01-\x7F]")) %>% 
+  unnest_tokens(word, text, token = "tweets") %>%
+  filter(!word %in% stop_words$word,
+        !word %in% str_remove_all(stop_words$word, "'"),
+        str_detect(word, "[a-z]"),
+        !str_detect(word, "^#"),         
+        !str_detect(word, "@\\S+")) %>%
+  count(word, sort = TRUE)
+
+library(wordcloud) 
+al <- brewer.pal(8,"Dark2")
+
+words %>% 
+  with(wordcloud(word, n, random.order = FALSE, max.words = 15, colors = pal))+ 
+    labs(title = 'Word Cloud', caption = 'donation and community too big for cloud')
+```
+
+```{r}
+#9 Timeline
+
+#ts_plot(dfTWEET2, "hours") +
+  #theme_minimal()+ 
+    #labs(title = 'Timeline', x='Date', y='Frequency', caption = 'Peaked recently (this Tuesday)')
+```
+
+```{r}
+#10 Sentiment Analysis
+
+df %>%
+    unnest_tokens(input = text, output = word) %>% 
+    anti_join(get_stopwords()) %>% 
+    count(word, sort = TRUE) %>%
+    inner_join(get_sentiments("nrc")) %>%
+    filter(!is.na(sentiment)) %>%
+    count(sentiment, sort = TRUE) %>% 
+    mutate(n = n/sum(n)) %>% 
+    ggplot(aes(y= reorder(sentiment, n), x = n))+geom_col()+ 
+    labs(title = 'Sentiment Analysis', x='Frequency', y='', caption = 'Many positive tweets')
+```
+
+```{r}
+#11 Positive or Negative
+df %>%
+    unnest_tokens(input = text, output = word) %>% 
+    anti_join(get_stopwords()) %>% 
+    count(word, sort = TRUE) %>%
+    inner_join(get_sentiments("bing")) %>%
+    filter(!is.na(sentiment)) %>%
+    count(sentiment, sort = TRUE) %>% 
+    mutate(n = n/sum(n)) %>% 
+    ggplot(aes(y= reorder(sentiment, n), x = n))+geom_col()+ 
+    labs(title = 'Positive or Negative', x='Frequency', y='', caption = 'Slightly more positive than negative')
+```
+
+
+```{r}
+#12 Numeric Sentiment
+df %>%
+    unnest_tokens(input = text, output = word) %>% 
+    anti_join(get_stopwords()) %>% 
+    count(word, sort = TRUE) %>%
+    inner_join(get_sentiments("afinn")) %>%
+    filter(!is.na(value)) %>%
+    count(value, wt = n, sort = TRUE) %>% 
+    ggplot(aes(x= value, y = n))+geom_col()+ 
+    labs(title = 'Numeric Sentiment', x='Sentiment', y='Frequency', caption = 'Nearly all positive')
+```
+
