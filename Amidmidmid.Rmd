@@ -1,0 +1,56 @@
+
+---
+title: "Statistical Analysis with R: Midterm Presentation"
+author: <font size="6"> Matt Melnychuk </font>
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+  
+class: inverse, middle, center
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(message = FALSE, warning = FALSE, echo = FALSE)
+
+#xaringanExtra::use_fit_screen()
+```
+class: inverse, middle, center
+---
+# Errors / Issues
+
+--
+
+- interpretability
+
+    - used Google doc to connect variable codes to name (provider, sex, reason for admittance)
+    
+--
+
+- large data set
+
+    - used a random sample for some of the modeling as needed
+
+--
+
+- skewness
+
+    - used log(length of stay) and log(total cost) on some graphs
+
+--
+
+- When creating the PowerPoint, I could not properly download xaringanExtra to use fit to screen
+
+    - Sized images to 50% using alternative method
+
+
+---
+class: inverse, middle, center
+# Thank You!
+### Any Questions?
+##### November 11, 2021
+

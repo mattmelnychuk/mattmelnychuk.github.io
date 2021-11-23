@@ -41,7 +41,7 @@ df<- read_csv("C:/Users/student/Desktop/R 421/Math421/netflix_titles.csv")
     
     - '20' otherwise. 
     
-    ```{r}
+```{r}
 df$century <- case_when(
   df$release_year >=2000 ~ 21,
   df$release_year <2000 ~ 20,
@@ -387,7 +387,7 @@ a <- recipe(target~description,
        data = df2) %>% 
   step_tokenize(description) %>% 
   step_tokenfilter(description, max_tokens = 25) %>% 
-  step_tfidf(description) %>% 
+  step_tfidf(description) %>%
   step_normalize(all_numeric_predictors()) %>% 
   step_smote(target) %>% 
   prep()
