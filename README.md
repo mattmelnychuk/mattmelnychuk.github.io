@@ -52,6 +52,10 @@
 
 [Assignment 14: Twitter Mining](Assignment14.html)
 
+## Functions
+
+[Assignment 15: Creating Functions](Assignment15.html)
+
 ## Final: R Shiny Apps
 
 [TBD]
