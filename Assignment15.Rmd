@@ -41,6 +41,7 @@ fxn1 <- function(birthyear=2021) {
   print(paste0('You are ', r, ' years old!'))
 }
   fxn1(birthyear = 2000)
+  fxn1(birthyear = 1947)
 ```
 
 Hint: [Similar Function](https://bryantstats.github.io/math421/gganimate/17_writing_functions_fa21.html#41)
@@ -189,23 +190,23 @@ vizzz(d2)
 AllViz <- function(d)
 {
   library(ggplot2)
-  if(is.numeric(d[[2]])|!is.numeric(d[[1]]))
+  if(is.numeric(d[[2]])&!is.numeric(d[[1]]))
   {
     d %>% ggplot()+geom_boxplot(mapping = aes(x = d[[2]], y = d[[1]]))+ labs(x = names(d)[2], y =names(d)[1])
   }
-  else if (is.numeric(d[[1]])|!is.numeric(d[[2]]))
+  else if (is.numeric(d[[1]])&!is.numeric(d[[2]]))
   {
     d %>% ggplot()+
   geom_boxplot(mapping = aes(x = d[[1]], y = d[[2]]))+
       labs(x = names(d)[1], y = names(d)[2])
   }
-  else if(is.numeric(d[[1]])|is.numeric(d[[2]]))
+  else if(is.numeric(d[[1]])& is.numeric(d[[2]]))
   {
     d %>% ggplot(aes(x = d[[1]], y = d[[2]]))+
       geom_point()+
       labs(x = names(d)[1], y = names(d)[2])
   }
-  else if (!(is.numeric(d[[1]])|is.numeric(d[[2]])))
+  else if (!(is.numeric(d[[1]]))& !(is.numeric(d[[2]])))
   {
     d %>% ggplot(aes(x = d[[1]], fill = d[[2]]))+ geom_bar(position = 'dodge')+ labs(x = names(d)[1], fill = names(d)[2])
   }
@@ -223,8 +224,6 @@ d3 <-read_csv("C:/Users/student/Desktop/R 421/testdata3.csv")
 AllViz(d3)
 d4 <-read_csv("C:/Users/student/Desktop/R 421/testdata4.csv")
 AllViz(d4)
-#AllViz somehow correctly calls for this function below for the two categorical variables but then cannot graph correctly
-d4 %>% ggplot(aes(x = d4[[1]], fill = d4[[2]]))+ geom_bar(position = 'dodge')+ labs(x = names(d4)[1], fill = names(d4)[2])
 ```
 
 
@@ -250,7 +249,8 @@ Sample codes
 - [A similar function](https://bryantstats.github.io/math421/gganimate/17_writing_functions_fa21_fa21.html#10)
 
 ```{r, error=TRUE}
-wcloud<- function(text_df=tdf, text_column=tc) {
+wcloud<- function(text_df = A, text_column = B) {
+library(tidyverse)
 library(wordcloud) 
 library(tidytext)
 pal <- brewer.pal(8,"Dark2")
@@ -260,17 +260,19 @@ text_df %>%
   count(word, sort = TRUE) %>%
   with(wordcloud(word, n, random.order = FALSE, max.words = 50, colors=pal))
 }
-dfword <- read_csv("C:/Users/student/Desktop/R 421/fake_job_postings.csv")
-wcloud(text_df = dfword, text_column = description)
-
-#Above does not run for some reason, but the code runs below perfectly fine
 
 pal <- brewer.pal(8,"Dark2")
 dfword %>%
-  unnest_tokens(input = description, output = word) %>% 
+  unnest_tokens(input = description, output = word) %>%
   anti_join(get_stopwords()) %>% 
   count(word, sort = TRUE) %>%
   with(wordcloud(word, n, random.order = FALSE, max.words = 50, colors=pal))
+
+dfword <- read_csv("C:/Users/student/Desktop/R 421/fake_job_postings.csv")
+dfword <- head(dfword, 100)
+#to make it run quicker
+
+wcloud(text_df = dfword, text_column = 'description')
 ```
 
 
