@@ -56,6 +56,8 @@
 
 [Assignment 15: Creating Functions](Assignment15.html)
 
+[Extra Credit 16: Functions with Loops](Assignment16.html)
+
 ## Final: R Shiny Apps
 
 []
