@@ -1,8 +1,8 @@
 ---
-title: "Finals_3_4"
+title: "Finals: Questions 3&4"
 author: "Matthew Melnychuk"
 date: "12/6/2021"
-output: html_document
+output: html_document 
 runtime: shiny
 ---
 
@@ -10,6 +10,7 @@ runtime: shiny
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+If needed, download this RMarkdown [here](https://mattmelnychuk.github.io/Final_3_4.Rmd)
 
 ## Question 3: Census Density with Checkbox
 
