@@ -1,0 +1,1159 @@
+---
+title: "Final Shiny Apps"
+author: "Matthew Melnychuk"
+date: "12/6/2021"
+output: html_document
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Question 1: Inverse Norm
+
+```{r}
+library(shiny)
+
+######################################
+# Set User Interface
+ui <- fluidPage(
+  titlePanel("Hello Shiny!"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      sliderInput(
+        inputId = "var1",
+        label = "Decide a number",
+        min = 1,
+        max = 100,
+        value=10
+      )
+      
+    ),
+    
+    mainPanel(
+      # Output: Histogram ----
+      plotOutput(outputId = 'blah1')
+    )
+    
+  )
+  
+)
+
+
+######################################
+# Main codes for the app
+server <- function(input, output) {
+  
+  output$blah1 <-renderPlot({
+    m = input$var1
+    hist(rnorm(mean=m, n=1000))
+  }
+  )
+  
+  
+}
+
+######################################
+# Run the app
+shinyApp(ui = ui, server = server)
+
+```
+
+
+## Question 2: Titanic Barplot
+
+```{r}
+library(tidyverse)
+library(shiny)
+
+d = read_csv('titanic.csv')
+# drop some columns
+d <- d %>% select(-Name, -PassengerId, -Ticket)
+
+# convert categorical variables to character type
+d <- d %>% mutate_at(c('Survived', 'Pclass'), as.character)
+
+# get variable names
+variables_names = names(d)
+
+# get names of numeric variables
+variables_numeric = d %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = d %>% select_if(is.character) %>% names
+
+ui <- fluidPage(
+  
+  titlePanel("Barplot for Titanic Data"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a Categorical Variable",
+        choices = variables_category, selected = "Age"
+      ),
+      
+      selectInput(
+        inputId ="var2",
+        label = "Select a Categorical Variable",
+        choices = variables_category,
+        selected = "Sex"
+      )
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Histogram ----
+      
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    d = read_csv('titanic.csv')
+    v1 = input$var1
+    v2 = input$var2
+   
+    
+    library(ggplot2)
+      
+    r = ggplot(d, aes(x = d[[v1]], fill = as.factor(d[[v2]])))+
+        geom_bar()+
+        labs(x = v1, fill = v2)
+      
+    return(r)
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+
+
+```
+
+## Question 3: Census Density with Checkbox
+
+```{r}
+library(tidyverse)
+library(shiny)
+
+dd = read_csv('adult_modified.csv')
+
+# get variable names
+variables_names = names(dd)
+
+# get names of numeric variables
+variables_numeric = dd %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = dd %>% select_if(is.character) %>% names
+
+
+
+ui <- fluidPage(
+  
+  titlePanel("Density Plot for Census Data"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a Numeric Variable",
+        choices = variables_numeric, selected = "age"
+      ),
+      
+      selectInput(
+        inputId ="var2",
+        label = "Select a Categorical Variable",
+        choices = variables_category,
+        selected = "sex"
+      ),
+      
+      checkboxGroupInput(inputId = "native__country", label = "Select Native Country",
+                         choices = names(table(dd$native_country)), selected="US", inline = TRUE),
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Histogram ----
+      
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    
+    v1 = input$var1
+    v2 = input$var2
+   
+    dd <- dd %>% filter(native_country %in% input$native__country)
+    
+    library(ggplot2)
+    
+      ggplot(dd, aes(x = dd[[v1]], color = as.factor(dd[[v2]])))+
+        geom_density()+
+        labs(x = v1, color = v2)
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+
+## Question 4: Census Density with Slider Input
+```{r}
+library(tidyverse)
+library(shiny)
+
+dd = read_csv('adult_modified.csv')
+
+
+# get variable names
+variables_names = names(dd)
+
+# get names of numeric variables
+variables_numeric = dd %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = dd %>% select_if(is.character) %>% names
+
+
+ui <- fluidPage(
+  
+  titlePanel("Density Plot for Census Data"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a Numeric Variable",
+        choices = variables_numeric, selected = "age"
+      ),
+      
+      selectInput(
+        inputId ="var2",
+        label = "Select a Categorical Variable",
+        choices = variables_category,
+        selected = "sex"
+      ), 
+      
+      sliderInput(inputId = "Hours",
+                  "Select Hours per Week:",
+                  min = min(dd$hours_per_week, na.rm=TRUE),
+                  max = max(dd$hours_per_week, na.rm=TRUE),
+                  value= c(20, 45))
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Histogram ----
+      
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    
+    v1 = input$var1
+    v2 = input$var2
+   
+    
+    library(ggplot2)
+    
+    dd <- dd %>% filter(hours_per_week>input$Hours[1], hours_per_week<input$Hours[2])
+      
+    ggplot(dd, aes(x = dd[[v1]], color = as.factor(dd[[v2]])))+
+        geom_density()+
+        labs(x = v1, color = v2)
+      
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+
+## Question 5: Covid Date Range Input
+
+```{r}
+library(tidyverse)
+library(shiny)
+
+d = read_csv('who_covid.csv')
+numeric_variables = d %>% select_if(is.numeric) %>% names()
+
+variables_names = names(d)
+
+ui <- fluidPage(
+  
+  titlePanel("Covid19 Data by Countries"),
+  
+  sidebarLayout(
+    
+    # Side Panel for reading inputs
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a statistic",
+        choices = numeric_variables, selected = "Cumulative_cases"
+      ),
+      
+      selectInput(inputId = "selected_country", label = "Select Country",
+                         choices = names(table(d$Country)), selected = "Spain"), 
+      
+      selectInput(inputId = "selected_country2", label = "Select Country",
+                  choices = names(table(d$Country)), selected = "Italy"), 
+      
+      selectInput(inputId = "selected_country3", label = "Select Country",
+                  choices = names(table(d$Country)), selected = "Germany"),
+      
+      
+      dateRangeInput(inputId = "date", 
+                     strong("Date range"), 
+                     start = "2020-01-01", end = "2021-11-25",
+                     min = "2020-01-01", max = "2021-11-25"),
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  output$show_plot <- renderPlot({
+    d = read_csv('who_covid.csv')
+    v1 = input$var1
+    v2 = input$var2
+    country1 = input$selected_country
+    country2 = input$selected_country2
+    country3 = input$selected_country3
+    
+    country = c(country1,country2,country3)
+    
+    print(v1)
+    library(ggplot2)
+    # r <- d %>% filter(Country %in% country) %>% 
+    #   ggplot(aes(x = Date_reported, y = d[[v1]]))+
+    #   geom_point()+
+    #   labs(x = 'Date', y = d[[v1]])
+    
+    d <- d %>% filter(Country %in% country, Date_reported>input$date[1],  Date_reported<input$date[2]) 
+    
+    r <- d %>% ggplot(aes(x = Date_reported, y = d[[v1]], color = Country))+
+      geom_point()+
+      labs(x = 'Date', y = v1)
+    
+    return(r)
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+## Question 6: Census Plots with Radio Buttons
+
+```{r}
+library(tidyverse)
+library(shiny)
+
+dd = read_csv('adult_modified.csv')
+
+# get variable names
+variables_names = names(dd)
+
+# get names of numeric variables
+variables_numeric = dd %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = dd %>% select_if(is.character) %>% names
+
+
+ui <- fluidPage(
+  
+  titlePanel("Density Plot for Census Data"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a Numeric Variables",
+        choices = variables_numeric, selected = "age"
+      ),
+      
+      selectInput(
+        inputId ="var2",
+        label = "Select a Categorical Variables",
+        choices = variables_category,
+        selected = "sex"
+      ),
+      
+      radioButtons(inputId = "plot_choice", 
+                   label = h3("Select Plot:"),
+                   choices = c("Density Plot" = "density",
+                     "Histogram Plot" = "histogram"),
+                   selected = 'density')
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Histogram ----
+      
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    
+    v1 = input$var1
+    v2 = input$var2
+   
+    
+    library(ggplot2)
+    
+    if(input$plot_choice == 'density')
+      
+    {
+      ggplot(dd, aes(x = dd[[v1]], color = as.factor(dd[[v2]])))+
+        geom_density()+
+        labs(x = v1, color = v2)
+    }
+    
+    else
+    {
+      ggplot(dd, aes(x = dd[[v1]], color = as.factor(dd[[v2]])))+
+        geom_histogram()+
+        labs(x = v1, color = v2)
+    }
+      
+      
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+## Question 7: Census Plots with NavBar
+```{r}
+library(tidyverse)
+library(shiny)
+
+dd = read_csv('adult_modified.csv')
+
+# get variable names
+variables_names = names(dd)
+
+# get names of numeric variables
+variables_numeric = dd %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = dd %>% select_if(is.character) %>% names
+
+ui <- navbarPage("Navigation",
+           tabPanel("Numeric Density",
+                    
+                    sidebarLayout(
+                      sidebarPanel(
+                        
+                        selectInput(
+                          inputId ="var1",
+                          label = "Select a Numeric Variable",
+                          choices = variables_numeric, selected = "age"
+                        )
+                      ),
+                      
+                      mainPanel(
+                        plotOutput(outputId = 'show_plot')
+                      )
+                    )
+           ),
+           
+           
+           tabPanel("Categorical Count",
+                    
+                    sidebarLayout(
+                      sidebarPanel(
+                        
+                        selectInput(
+                          inputId ="var2",
+                          label = "Select a Categorical Variable",
+                          choices = variables_category, selected = "sex"
+                        )
+                      ),
+                      
+                      mainPanel(
+                        plotOutput(outputId = 'show_plot2')
+                      )
+                    )
+           )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    
+    v1 = input$var1
+    
+    library(ggplot2)
+    
+      ggplot(dd, aes(x = dd[[v1]]))+
+        geom_density()+
+        labs(x = v1)
+    
+    
+  })
+  
+  output$show_plot2 <- renderPlot({
+    
+    v2 = input$var2
+    
+    library(ggplot2)
+    
+    ggplot(dd, aes(x = dd[[v2]]))+
+      geom_bar()+
+      labs(x = v2)
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+## Question 8: Bar Plots for Uploaded Data
+```{r}
+library(tidyverse)
+library(shiny)
+library(DT)
+
+ui <- fluidPage(
+  
+  titlePanel("Bar Plots for Uploaded Data"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      fileInput('f1', label = 'Upload data for visualization', accept = '.csv'),
+      
+      selectInput('v1', label='Select a Categorical Variable', choices=''),
+      selectInput('v2', label='Select a Categorical Variable', choices='')
+    
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server
+server <- function(input, output, session) {
+  
+  myData <- reactive({
+    inFile = input$f1
+    if (is.null(inFile)) return(NULL)
+    data <- read.csv(inFile$datapath, header = TRUE)
+    data
+  }
+    )
+    
+  output$show_plot <- renderPlot({
+  
+    inFile = input$f1
+    v1 = input$v1
+    d <- read.csv(inFile$datapath, header = TRUE)
+    
+    v1 = input$v1
+    v2 = input$v2
+    
+    
+      library(ggplot2)
+      
+      r = ggplot(d, aes(x = d[[v1]], fill = as.factor(d[[v2]])))+
+        geom_bar()+
+        labs(x = v1, fill = v2)
+      
+    return(r)
+    
+  })
+  
+  
+  observeEvent(input$f1,{ 
+    inFile = input$f1
+    data <- read.csv(inFile$datapath, header = TRUE)   
+               updateSelectInput(session, 'v1', choices = names(data))}
+               )
+  
+  observeEvent(input$f1,{ 
+    inFile = input$f1
+    data <- read.csv(inFile$datapath, header = TRUE)   
+    updateSelectInput(session, 'v2', choices = names(data))}
+  )
+
+}
+
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Question 9: Scatter Plots for Uploaded Data
+
+```{r}
+library(tidyverse)
+library(shiny)
+library(DT)
+
+ui <- fluidPage(
+  
+  titlePanel("Scatter Plots for Uploaded Data"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      fileInput('f1', label = 'Upload data for visualization', accept = '.csv'),
+      
+      selectInput('v1', label='Select a Numerical Variable for X', choices=''),
+      selectInput('v2', label='Select a Numerical Variable for Y', choices=''),
+      selectInput('v3', label='Select a Categorical Variable', choices='')
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server
+server <- function(input, output, session) {
+  
+  myData <- reactive({
+    inFile = input$f1
+    if (is.null(inFile)) return(NULL)
+    data <- read.csv(inFile$datapath, header = TRUE)
+    data
+  }
+    )
+    
+  output$show_plot <- renderPlot({
+  
+    inFile = input$f1
+    v1 = input$v1
+    d <- read.csv(inFile$datapath, header = TRUE)
+    
+    v1 = input$v1
+    v2 = input$v2
+    v3 = input$v3
+    
+    
+      library(ggplot2)
+      
+      r = ggplot(d, aes(x = d[[v1]], y = d[[v2]],color = d[[v3]]))+
+        geom_point()+
+        labs(x = v1, y = v2, color = v3)
+      
+    return(r)
+    
+  })
+  
+  
+  observeEvent(input$f1,{ 
+    inFile = input$f1
+    data <- read.csv(inFile$datapath, header = TRUE)   
+               updateSelectInput(session, 'v1', choices = names(data))}
+               )
+  
+  observeEvent(input$f1,{ 
+    inFile = input$f1
+    data <- read.csv(inFile$datapath, header = TRUE)   
+    updateSelectInput(session, 'v2', choices = names(data))}
+  )
+
+  observeEvent(input$f1,{ 
+    inFile = input$f1
+    data <- read.csv(inFile$datapath, header = TRUE)   
+    updateSelectInput(session, 'v3', choices = names(data))}
+  )
+}
+
+
+shinyApp(ui = ui, server = server)
+```
+
+
+## Question 10: NCAA Volleyball Stats Scatter Plots
+```{r}
+library(tidyverse)
+library(shiny)
+
+dvb = read_csv('ncaaClean.csv')
+
+# get variable names
+variables_names = names(dvb)
+
+# get names of numeric variables
+variables_numeric = dvb %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = dvb %>% select_if(is.character) %>% names
+
+
+ui <- fluidPage(
+  
+  titlePanel("Plots for NCAA Volleyball Statistics 2019"),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a Numeric Variable (for X)",
+        choices = variables_numeric, selected = "HitPercent"
+      ),
+      
+      selectInput(
+        inputId ="var2",
+        label = "Select a Numeric Variable (for Y)",
+        choices = variables_numeric,
+        selected = "Blocks"
+      ), 
+      
+      radioButtons(inputId = "plot_choice", 
+                   label = h3("Select Plot:"),
+                   choices = c("Scatter Plot" = "scatter",
+                               "Density Plot (only uses 1st var)" = "density"),
+                   selected = 'scatter'),
+      
+      checkboxGroupInput(inputId = "selected_region", label = "Region",
+                         choices = c('East','Midwest','South','Southeast','West'), selected = c("East","South"), inline = TRUE),
+      
+      sliderInput(inputId = "winP",
+                  "Select Win % of Interest:",
+                  min = min(dvb$WinPercent, na.rm=TRUE),
+                  max = max(dvb$WinPercent, na.rm=TRUE),
+                  value= c(0.25, 0.75))
+      
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      
+      # Output: Histogram ----
+      
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    
+    v1 = input$var1
+    v2 = input$var2
+    region = input$selected_region
+   
+    
+    library(ggplot2)
+    
+    dvb <- dvb %>% filter(Region %in% region,WinPercent>input$winP[1], WinPercent<input$winP[2])
+    
+    if(input$plot_choice == 'scatter')
+      
+    {
+      ggplot(dvb, aes(x = dvb[[v1]], y = dvb[[v2]], color = as.factor(dvb$Conference)))+
+        geom_point()+
+        labs(x = v1, y = v2, color = 'Conference')
+    }
+    
+    else
+    {
+      r <- dvb %>% ggplot(aes(x = dvb[[v1]], color = dvb$Conference))+
+        geom_density()+
+        labs(x = v1, color = 'Conference')
+      return(r)
+    }
+    
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+
+## Question 11: NEC Volleyball Standings Over Time
+
+```{r}
+library(tidyverse)
+library(shiny)
+
+d = read_csv('NEC_Standings2.csv')
+numeric_variables = d %>% select_if(is.numeric) %>% names()
+d$SeasonDate <- as.Date(d$SeasonDate,"%m/%d/%y")
+
+variables_names = names(d)
+
+ui <- fluidPage(
+  
+  titlePanel("Northeast Conference Volleyball"),
+  
+  sidebarLayout(
+    
+    # Side Panel for reading inputs
+    sidebarPanel(
+      
+      selectInput(
+        inputId ="var1",
+        label = "Select a statistic",
+        choices = numeric_variables, selected = "Conf Win"
+      ),
+      
+      radioButtons(inputId = "plot_choice", 
+                   label = h3("Select Plot:"),
+                   choices = c("Scatter Plot" = "scatter",
+                               "Line Plot" = "line"),
+                   selected = 'scatter'),
+      
+      checkboxGroupInput(inputId = "selected_playoff", label = "Playoff Team?",
+                         choices = c('Yes','No'), selected = "Yes", inline = TRUE),
+      
+      dateRangeInput(inputId = "Date", 
+                     strong("Date range"), 
+                     start = "2017-01-01", end = "2021-12-31",
+                     min = "1997-01-01", max = "2021-12-31"),
+    ),
+    
+    # Main panel for displaying outputs ----
+    mainPanel(
+      plotOutput(outputId = 'show_plot')
+    )
+  )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  output$show_plot <- renderPlot({
+    d = read_csv('NEC_Standings2.csv')
+    v1 = input$var1
+    v2 = input$var2
+    playoff = input$selected_playoff
+    print(v1)
+    library(ggplot2)
+    
+    d <- d %>% filter(Playoffs %in% playoff, SeasonDate>input$Date[1],  SeasonDate<input$Date[2]) 
+    
+    
+    if(input$plot_choice == 'scatter')
+      
+    {
+      library(lubridate)
+      r <- d %>% ggplot(aes(x = year(SeasonDate), y = d[[v1]], color = School))+
+        geom_point()+
+        labs(x = 'Date', y = v1)
+      return(r)
+    }
+    
+    else
+    {
+      library(lubridate)
+      r <- d %>% ggplot(aes(x = year(SeasonDate), y = d[[v1]], color = School))+
+        geom_line()+geom_point()+
+        labs(x = 'Date', y = v1)
+      return(r)
+    }
+    
+    
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
+
+
+## Question 12: Many Volleyball Plots Using NavBar
+```{r}
+library(tidyverse)
+library(shiny)
+
+dvb = read_csv('ncaaClean.csv')
+
+dvb$FiveHun <- ifelse(dvb$WinPercent>.5, 'Over500','No')
+
+# convert categorical variables to character type
+dvb <- dvb %>% mutate_at(c('Tourney2018', 'PrevChamp','MenProgram'), as.character)
+
+# get variable names
+variables_names = names(dvb)
+
+# get names of numeric variables
+variables_numeric = dvb %>% select_if(is.numeric) %>% names
+
+# get names of categorical variables
+variables_category = dvb %>% select_if(is.character) %>% names
+
+ui <- navbarPage("VB Plot Navigation",
+                 tabPanel("Stat Density Plot",
+                          
+                          sidebarLayout(
+                            sidebarPanel(
+                              
+                              selectInput(
+                                inputId ="var1",
+                                label = "Select a Numeric Variable",
+                                choices = variables_numeric, selected = "Digs"
+                              ),
+                              
+                              checkboxGroupInput(inputId = "playlast", label = "1 = Team Made Playoffs Last Year, 0 = No Playoffs Last Year",
+                                                 choices = names(table(dvb$Tourney2018)), selected="1", inline = TRUE),
+                              
+                              radioButtons(inputId = "team500", 
+                                           label = h3("Select Teams:"),
+                                           choices = c("All Teams" = "allteam",
+                                                       "Teams Over 0.500 Win%" = "winners"),
+                                           selected = 'allteam'),
+                              
+                              sliderInput(inputId = "coachtenure",
+                                          "Select length of Coach Tenure:",
+                                          min = min(dvb$CoachTenure),
+                                          max = max(dvb$CoachTenure),
+                                          value= c(3, 12))
+                            ),
+                            
+                            
+                            mainPanel(
+                              plotOutput(outputId = 'show_plot')
+                            )
+                          )
+                 ),
+                 
+                 
+                 tabPanel("Categorical Count",
+                          
+                          sidebarLayout(
+                            sidebarPanel(
+                              
+                              selectInput(
+                                inputId ="var2",
+                                label = "Select a Categorical Variable",
+                                choices = variables_category, selected = "Region"
+                              ),
+                              
+                              checkboxGroupInput(inputId = "playlast2", label = "1 = Team Made Playoffs Last Year, 0 = No Playoffs Last Year",
+                                                 choices = names(table(dvb$Tourney2018)), selected="1", inline = TRUE),
+                              radioButtons(inputId = "team5002", 
+                                           label = h3("Select Teams:"),
+                                           choices = c("All Teams" = "allteam",
+                                                       "Teams Over 0.500 Win%" = "winners"),
+                                           selected = 'allteam'),
+                              
+                              sliderInput(inputId = "coachtenure2",
+                                          "Select length of Coach Tenure:",
+                                          min = min(dvb$CoachTenure),
+                                          max = max(dvb$CoachTenure),
+                                          value= c(3, 12))
+                            ),
+                            
+                            
+                            mainPanel(
+                              plotOutput(outputId = 'show_plot2')
+                            )
+                          )
+                 ),
+                 
+                 tabPanel("Win Percentage by X Statistic",
+                          
+                          sidebarLayout(
+                            sidebarPanel(
+                              
+                              selectInput(
+                                inputId ="var3",
+                                label = "Select a Numeric Variable",
+                                choices = variables_numeric, selected = "OppHitPercent"
+                              ),
+                              
+                              checkboxGroupInput(inputId = "playlast3", label = "1 = Team Made Playoffs Last Year, 0 = No Playoffs Last Year",
+                                                 choices = names(table(dvb$Tourney2018)), selected="1", inline = TRUE),
+                              
+                              radioButtons(inputId = "team5003", 
+                                           label = h3("Select Teams:"),
+                                           choices = c("All Teams" = "allteam",
+                                                       "Teams Over 0.500 Win%" = "winners"),
+                                           selected = 'allteam'),
+                              
+                              sliderInput(inputId = "coachtenure3",
+                                          "Select length of Coach Tenure:",
+                                          min = min(dvb$CoachTenure),
+                                          max = max(dvb$CoachTenure),
+                                          value= c(3, 12))
+                            ),
+                            
+                            mainPanel(
+                              plotOutput(outputId = 'show_plot3')
+                            )
+                          )
+                 )
+)
+
+# server is a function! 
+server <- function(input, output) {
+  
+  
+  output$show_plot <- renderPlot({
+    
+    v1 = input$var1
+    
+    dvb <- dvb %>% filter(CoachTenure>input$coachtenure[1], CoachTenure<input$coachtenure[2])
+    dvb <- dvb %>% filter(Tourney2018 %in% input$playlast)
+    
+    if(input$team500 == 'winners')
+      
+    {
+      dvb <- dvb %>% filter(FiveHun == 'Over500')
+    }
+    
+    else
+    {
+    }
+    
+    
+    
+    library(ggplot2)
+    
+    ggplot(dvb, aes(x = dvb[[v1]]))+
+      geom_density()+
+      labs(x = v1, y = 'Density')
+    
+    
+  })
+  
+  output$show_plot2 <- renderPlot({
+    
+    v2 = input$var2
+    
+    dvb <- dvb %>% filter(CoachTenure>input$coachtenure2[1], CoachTenure<input$coachtenure2[2])
+    dvb <- dvb %>% filter(Tourney2018 %in% input$playlast2)
+    
+    if(input$team5002 == 'winners')
+      
+    {
+      dvb <- dvb %>% filter(FiveHun == 'Over500')
+    }
+    
+    else
+    {
+    }
+    
+    
+    library(ggplot2)
+    
+    ggplot(dvb, aes(x = dvb[[v2]]))+
+      geom_bar()+
+      labs(x = v2, y = 'Frequency')
+    
+    
+  })
+  
+  output$show_plot3 <- renderPlot({
+    
+    v3 = input$var3
+    
+    dvb <- dvb %>% filter(CoachTenure>input$coachtenure3[1], CoachTenure<input$coachtenure3[2])
+    dvb <- dvb %>% filter(Tourney2018 %in% input$playlast3)
+    
+    if(input$team5003 == 'winners')
+      
+    {
+      dvb <- dvb %>% filter(FiveHun == 'Over500')
+    }
+    
+    else
+    {
+    }
+    
+    
+    library(ggplot2)
+    
+    ggplot(dvb, aes(x = dvb[[v3]], y = dvb$WinPercent))+
+      geom_point()+
+      labs(x = v3, y = 'Win Percentage')
+    
+    
+  })
+  
+}
+# app
+shinyApp(ui = ui, server = server)
+```
