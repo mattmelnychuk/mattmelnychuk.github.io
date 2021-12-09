@@ -621,6 +621,8 @@ server <- function(input, output, session) {
   output$show_plot <- renderPlot({
   
     inFile = input$f1
+    if (!is.null(inFile))
+    {
     v1 = input$v1
     d <- read.csv(inFile$datapath, header = TRUE)
     
@@ -635,7 +637,10 @@ server <- function(input, output, session) {
         labs(x = v1, fill = v2)
       
     return(r)
-    
+    }
+    else{
+      return(NULL)
+    }
   })
   
   
@@ -701,6 +706,8 @@ server <- function(input, output, session) {
   output$show_plot <- renderPlot({
   
     inFile = input$f1
+    if (!is.null(inFile))
+    {
     v1 = input$v1
     d <- read.csv(inFile$datapath, header = TRUE)
     
@@ -715,7 +722,11 @@ server <- function(input, output, session) {
         geom_point()+
         labs(x = v1, y = v2, color = v3)
       
-    return(r)
+    return(r)}
+    
+    else{
+      return(NULL)
+    }
     
   })
   
