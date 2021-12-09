@@ -60,4 +60,10 @@
 
 ## Final: R Shiny Apps
 
+<<<<<<< HEAD
 [Final](Final.Rmd)
+=======
+[Final]
+
+[Final: Questions 3 & 4](Final_3_4.html)
+>>>>>>> 25f7941dd9f242a4bf4ca8be9f4f023dcaa2821e
