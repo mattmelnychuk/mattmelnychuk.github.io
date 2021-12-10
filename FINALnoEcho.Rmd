@@ -1,7 +1,7 @@
 ---
 title: "Final Shiny Apps"
 author: "Matthew Melnychuk"
-date: "12/6/2021"
+date: "12/13/2021"
 output: html_document
 runtime: shiny
 ---
@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Question 1: Inverse Norm
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(shiny)
 
 ######################################
@@ -65,7 +65,7 @@ shinyApp(ui = ui, server = server)
 
 ## Question 2: Titanic Barplot
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -148,7 +148,7 @@ shinyApp(ui = ui, server = server)
 
 ## Question 3: Census Density with Checkbox
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -228,7 +228,7 @@ shinyApp(ui = ui, server = server)
 
 
 ## Question 4: Census Density with Slider Input
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -313,7 +313,7 @@ shinyApp(ui = ui, server = server)
 
 ## Question 5: Covid Date Range Input
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -398,7 +398,7 @@ shinyApp(ui = ui, server = server)
 
 ## Question 6: Census Plots with Radio Buttons
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -490,7 +490,7 @@ shinyApp(ui = ui, server = server)
 ```
 
 ## Question 7: Census Plots with NavBar
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -580,7 +580,7 @@ shinyApp(ui = ui, server = server)
 ```
 
 ## Question 8: Bar Plots for Uploaded Data
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 library(DT)
@@ -662,10 +662,12 @@ server <- function(input, output, session) {
 shinyApp(ui = ui, server = server)
 ```
 
+No plot will appear until a .csv file is uploaded
+
 
 ## Question 9: Scatter Plots for Uploaded Data
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 library(DT)
@@ -754,9 +756,11 @@ server <- function(input, output, session) {
 shinyApp(ui = ui, server = server)
 ```
 
+No plot will appear until a .csv file is uploaded
+
 
 ## Question 10: NCAA Volleyball Stats Scatter Plots
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -860,10 +864,18 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 ```
 
+#### Aces and serve errors appear correlated
+##### -More aggressive serves -> more of both
+##### -This remains true regardless of region
+##### -These statistics are less correlated when only looking at better teams
+
+#### In general, most teams played around 30 matches
+##### -Exception of Ivy League teams (in East region) playing fewer
+
 
 ## Question 11: NEC Volleyball Standings Over Time
 
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -953,9 +965,14 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 ```
 
+#### Adding line plots makes the patterns more noticeable
+#### Looking back at 2014, a .500 win percentage team made the playoffs
+#### Looking at teams that did not get in, Bryant had a good record and missed playoffs multiple times
+#### Switching to overall win percentage makes the win percentage lower than conference win percentage
+##### -NEC is not a particularly strong volleyball conference
 
 ## Question 12: Many Volleyball Plots Using NavBar
-```{r}
+```{r, echo=FALSE, message = FALSE, warning = FALSE}
 library(tidyverse)
 library(shiny)
 
@@ -1169,5 +1186,13 @@ server <- function(input, output) {
 shinyApp(ui = ui, server = server)
 ```
 
+#### Examining block statistics
+##### -Previous playoff teams do better than average teams
+##### -Teams with a win percentage over .500% also perform better on average
+#### On second navpage, changing CoachTenure to all lengths, we see West region has the most playoff teams
+#### Third page, HitPercent is highly correlated with win percentage
+##### -When only examining teams with winning records, still correlated, but not as strong
 
-Thank you!
+
+
+## Thank you!
