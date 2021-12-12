@@ -1194,5 +1194,23 @@ shinyApp(ui = ui, server = server)
 ##### -When only examining teams with winning records, still correlated, but not as strong
 
 
+## Errors / Challenges / Advice
+
+#### Creating multiple shiny apps works best in one RMarkdown file instead of publishing each app
+##### -Posting separately only works for five apps
+#### Using date filters can be challenging
+##### -Had to try multiple different formats before it worked
+#### Interesting getting used to the different shiny features
+##### -Radio buttons are good for "if statement" type ideas
+##### -Checkboxes work as good filters for categories
+##### -Sliders also filter quantitative categories and dates
+#### Best Advice: Find a working app with correct features to build off
+##### -The shiny app requires changes in user interface and server function
+##### -Rcode within a section works similar to R
+#### Final issue: knitting a regular html Rmarkdown does not work
+##### -Have to post to shiny apps website instead
+
+
+
 
 ## Thank you!
